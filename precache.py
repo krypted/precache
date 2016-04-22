@@ -14,6 +14,8 @@ class PreCache(object):
 
     default_caching_server = 'http://localhost:57466'
 
+    exclude_beta_updates = False
+
     update_feeds = [
         'http://mesu.apple.com/assets/com_apple_MobileAsset_SoftwareUpdate/com_apple_MobileAsset_SoftwareUpdate.xml',
         'http://mesu.apple.com/assets/tv/com_apple_MobileAsset_SoftwareUpdate/com_apple_MobileAsset_SoftwareUpdate.xml'
@@ -45,7 +47,7 @@ class PreCache(object):
             self.logger.error("Updates for the model {} not found in feeds".format(model))
 
     def get_update_urls(self, model):
-        update_urls = []
+        update_urls = set()
 
         for feed in self.update_feeds:
             if feed in self.feeds_cache:
@@ -62,10 +64,13 @@ class PreCache(object):
             if feed_data:
                 for asset in feed_data['Assets']:
                     if model in asset['SupportedDevices']:
+                        if asset.get('ReleaseType') == 'Beta' and self.exclude_beta_updates:
+                            continue
+
                         if 'RealUpdateAttributes' in asset:
-                            update_urls.append(asset['RealUpdateAttributes']['RealUpdateURL'])
+                            update_urls.add(asset['RealUpdateAttributes']['RealUpdateURL'])
                         else:
-                            update_urls.append(asset['__BaseURL'] + asset['__RelativePath'])
+                            update_urls.add(asset['__BaseURL'] + asset['__RelativePath'])
 
         return update_urls
 
@@ -98,10 +103,14 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--caching-server',
                         dest='server',
                         help='The base URL of the Caching Server')
+    parser.add_argument('--no-beta',
+                        action='store_true',
+                        help='Exclude Beta updates from the caching')
 
     args = parser.parse_args()
 
     precache = PreCache(args.server)
+    precache.exclude_beta_updates = args.no_beta
 
     for model in args.models:
         precache.cache(model)
