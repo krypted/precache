@@ -6,3 +6,9 @@ sudo python precache.py iPad2,1
 To eliminate beta operating systems from your precache,use the --no-beta argument:
 
 sudo python precache.py iPad2,1 --no-beta
+
+Precache also now supports AppleTV, so to cache updates for an AppleTV, use the model, as follows:
+
+sudo python precache.py AppleTV5,4
+
+Note: Model identifiers are currently case sensitive.
