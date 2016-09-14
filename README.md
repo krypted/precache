@@ -13,8 +13,8 @@ Modify line 404 to reflect your caching server address and port.
 Make sure `precache.py` is executable: `chmod +x precache.py`
 
 ```
-usage: precache.py [-h] [-l] [-m <model> [<model> ...]]
-                   [-i <model> [<model> ...]]
+usage: ./precache.py [-h] [-l] [-m <model> [<model> ...]]
+                     [-i <model> [<model> ...]]
 
 optional arguments:
   -h, --help            show this help message and exit
