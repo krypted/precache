@@ -1,14 +1,28 @@
 # precache
-Used to cache available Apple updates into an OS X Server running the Caching Service. To use, run the script followed by the name of the model. For example, for an iPad 2,1, you would use the following syntax:
+This is a modified version of the precache.py available at https://github.com/krypted/precache
 
-sudo python precache.py iPad2,1
+This version will cache:
+* iOS
+* tvOS
+* watchOS
+* IPSW's (defaults to storing them in /tmp/precache/ so you can move them to archive if required)
 
-To eliminate beta operating systems from your precache,use the --no-beta argument:
+To use:
+Modify line 404 to reflect your caching server address and port.
 
-sudo python precache.py iPad2,1 --no-beta
+Make sure `precache.py` is executable: `chmod +x precache.py`
 
-Precache also now supports AppleTV, so to cache updates for an AppleTV, use the model, as follows:
+```
+usage: precache.py [-h] [-l] [-m <model> [<model> ...]]
+                   [-i <model> [<model> ...]]
 
-sudo python precache.py AppleTV5,4
+optional arguments:
+  -h, --help            show this help message and exit
+  -l, --list            Lists models available for caching
+  -m, --model <model> [<model> ...]
+                        Provide one or model numbers, i.e iPhone8,2
+  -i, --ipsw <model> [<model> ...]
+                        Download IPSW files for one or more models
+```
 
 Note: Model identifiers are currently case sensitive.
