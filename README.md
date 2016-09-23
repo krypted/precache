@@ -11,4 +11,6 @@ Precache also now supports AppleTV, so to cache updates for an AppleTV, use the 
 
 sudo python precache.py AppleTV5,4
 
+Also, if you have another port for server (differ from default http://localhost:57466) you need to run with sudo as "serveradmin fullstatus caching" only executes with elevated privileges. 
+
 Note: Model identifiers are currently case sensitive.
