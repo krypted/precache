@@ -25,7 +25,7 @@ To get a list of supported hardware models and macOS installers: `./precache.py 
 ```
 usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
                    [-m model [model ...]]
-                   [-os macOS installer [macOS installer ...]]
+                   [-os macOS release [macOS release ...]]
                    [-i model [model ...]]
 
 optional arguments:
@@ -35,8 +35,8 @@ optional arguments:
   -l, --list            Lists models available for caching
   -m, --model model [model ...]
                         Provide one or more models, i.e iPhone8,2
-  -os, --os-installer macOS installer [macOS installer ...]
-                        Provide one or more macOS installers.
+  -os, --os-installer macOS release [macOS release ...]
+                        Provide one or more macOS releases, i.e Sierra
   -i, --ipsw model [model ...]
                         Download IPSW files for one or more models
 ```

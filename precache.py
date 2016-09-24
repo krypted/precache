@@ -470,8 +470,8 @@ def main():
                         type=str,
                         nargs='+',
                         dest='os',
-                        metavar='macOS installer',
-                        help='Provide one or more macOS installers.',
+                        metavar='macOS release',
+                        help='Provide one or more macOS releases, i.e Sierra',
                         required=False)
 
     parser.add_argument('-i', '--ipsw',
