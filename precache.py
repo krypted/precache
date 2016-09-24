@@ -448,7 +448,7 @@ def main():
                         type=str,
                         nargs=1,
                         dest='cache_server',
-                        metavar='<http://cachingserver:port>',
+                        metavar='http://cachingserver:port',
                         help='Provide the cache server URL and port',
                         required=False)
 
@@ -462,7 +462,7 @@ def main():
                         type=str,
                         nargs='+',
                         dest='model',
-                        metavar='<model>',
+                        metavar='model',
                         help='Provide one or more models, i.e iPhone8,2',
                         required=False)
 
@@ -470,7 +470,7 @@ def main():
                         type=str,
                         nargs='+',
                         dest='os',
-                        metavar='<macOS installer>',
+                        metavar='macOS installer',
                         help='Provide one or more macOS installers.',
                         required=False)
 
@@ -478,7 +478,7 @@ def main():
                         type=str,
                         nargs='+',
                         dest='ipsw',
-                        metavar='<model>',
+                        metavar='model',
                         help='Download IPSW files for one or more models',
                         required=False)
 
