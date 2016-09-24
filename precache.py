@@ -26,6 +26,7 @@ Usage:
 
 import argparse
 import collections
+import errno
 import logging
 import os
 import plistlib
@@ -39,7 +40,7 @@ from urlparse import urlparse
 
 
 class PreCache(object):
-    def __init__(self, caching_server=None, caching_port=None):
+    def __init__(self, cache_server=None, log_level='info'):
         """ Initialise the object with some basic configurations
             When initialising, detect if the script is running on the cache
             server, if it isn't, then use values provided by arguments when the
@@ -47,8 +48,10 @@ class PreCache(object):
             Can also override by providing those arguments."""
 
         self.logger = logging.getLogger('precache')
-        self.logger.setLevel(logging.INFO)
-        # self.logger.setLevel(logging.DEBUG)
+        if 'info' in log_level:
+            self.logger.setLevel(logging.INFO)
+        if 'debug' in log_level:
+            self.logger.setLevel(logging.DEBUG)
         self.fh = logging.FileHandler('/tmp/precache.log')
         self.formatter = logging.Formatter(
             '%(asctime)s %(levelname)s - %(message)s'
@@ -70,42 +73,74 @@ class PreCache(object):
                                  self.mobile_asset_path,
                                  self.xml_url),
         }
+        self.osx_installer_urls = {
+            'MountainLion': {'version': '10.8.5',
+                             'url': ['http://osxapps.itunes.apple.com/',
+                                     'apple-assets-us-std-000001/',
+                                     'Purple69/v4/5f/05/f7/',
+                                     '5f05f76f-e0f8-62ef-5510-86cd3aed985d/',
+                                     'encrypted3324837209255448993.pkg']},
+            'Mavericks': {'version': '10.9.5',
+                          'url': ['http://osxapps.itunes.apple.com/',
+                                  'apple-assets-us-std-000001/',
+                                  'Purple49/v4/a5/ef/b4/',
+                                  'a5efb468-7f48-1395-d8e4-2194ba4d688a/',
+                                  'encrypted5063122388219779779.pkg']},
+            'Yosemite': {'version': '10.10.5',
+                         'url': ['http://osxapps.itunes.apple.com/',
+                                 'apple-assets-us-std-000001/',
+                                 'Purple69/v4/61/cb/04/',
+                                 '61cb0419-ba73-70c1-02ce-b1cee2f2269c/',
+                                 'encrypted8769637421434146660.pkg']},
+            'ElCapitan': {'version': '10.11.6',
+                          'url': ['http://osxapps.itunes.apple.com/',
+                                  'apple-assets-us-std-000001/',
+                                  'Purple20/v4/dc/94/05/',
+                                  'dc940501-f06f-2a91-555e-3dc272653af5/',
+                                  'izt4803713449411067066.pkg']},
+            'Sierra': {'version': '10.12.0',
+                       'url': ['http://osxapps.itunes.apple.com/',
+                               'apple-assets-us-std-000001/',
+                               'Purple62/v4/af/5f/9d/',
+                               'af5f9d8e-cf9c-8147-c51c-c3c1fececb99/',
+                               'jze1425880974225146329.pkg']}
+        }
 
+        self.user_agent = ('User-Agent', 'PreCacher/1.5')
         self.cache_config_path = '/Library/Server/Caching/Config/Config.plist'
 
-        if not caching_server:
-            self.cache_server = 'http://localhost'
-            self.logger.debug(
-                'Fallback to default host %s' % self.cache_server
-            )
-        else:
-            self.cache_server = caching_server
-
-        if not caching_port:
+        if not cache_server:
+            fallback_srv = 'http://localhost:49672'
             if os.path.exists(self.cache_config_path):
                 try:
                     self.cache_srv_conf = plistlib.readPlist(
                         self.cache_config_path
                     )
                     self.cache_server_port = self.cache_srv_conf['Port']
+                    self.cache_server = 'http://localhost:%s' % (
+                        self.cache_server_port
+                    )
+                    self.logger.info(
+                        'Caching server found at: %s' % self.cache_server
+                    )
                 except:
-                    pass
+                    self.cache_server = fallback_srv
+                    self.logger.debug(
+                        'Fallback to default cache server: %s' % fallback_srv
+                    )
             else:
-                self.cache_server_port = '49672'
+                self.cache_server = fallback_srv
                 self.logger.debug(
-                    'Fallback to default port %s' % self.cache_server_port
+                    'Fallback to default cache server %s' % fallback_srv
                 )
-        else:
-            self.cache_server_port = caching_port
-
-        self.cache_server = '%s:%s' % (self.cache_server,
-                                       self.cache_server_port)
-        self.logger.debug(
-            'Cache server and port %s' % (self.cache_server)
-        )
+        if cache_server:
+            self.cache_server = cache_server
 
         self.exclude_beta = True
         self.assets_master = []
+        self.Asset = collections.namedtuple('Asset', ['model',
+                                                      'download_url',
+                                                      'os_version'])
 
     def convert_asset_url(self, asset_url):
         asset_url = urlparse(asset_url)
@@ -115,13 +150,11 @@ class PreCache(object):
         return asset_url
 
     def cache_ipsw(self, device_model):
-        Asset = collections.namedtuple('Asset', ['model',
-                                                 'download_url',
-                                                 'os_version'])
-
         url = 'http://api.ipsw.me/v2.1/%s/latest/url' % device_model
         try:
-            request = urllib2.urlopen(url)
+            opener = urllib2.build_opener()
+            opener.addheaders = [self.user_agent]
+            request = opener.open(url)
         except urllib2.HTTPError as e:
             print '%s - Model or IPSW may not exist (%s)' % (e, device_model)
         else:
@@ -131,7 +164,7 @@ class PreCache(object):
                                            ipsw_url.path,
                                            ipsw_url.netloc)
 
-            asset = Asset(
+            asset = self.Asset(
                 model=device_model + ' (ipsw)',
                 download_url=ipsw_url,
                 os_version=os_ver
@@ -153,10 +186,6 @@ class PreCache(object):
             assets_master list that is empty when initialised.
         """
         try:
-            Asset = collections.namedtuple('Asset', ['model',
-                                                     'download_url',
-                                                     'os_version'])
-
             response = urllib2.urlopen(feed_url)
             self.logger.debug('Opening URL %s' % feed_url)
             feed_data = plistlib.readPlistFromString(response.read())
@@ -176,7 +205,7 @@ class PreCache(object):
 
                 url = self.convert_asset_url(url)
 
-                asset = Asset(
+                asset = self.Asset(
                     model=hr_model[0],
                     download_url=url,
                     os_version=os_ver
@@ -204,7 +233,8 @@ class PreCache(object):
 
         except (urllib2.URLError, urllib2.HTTPError) as e:
             self.logger.debug('Error processing assets: %s' % e)
-            raise e
+            print '%s' % e
+            exit(1)
 
     def build_asset_master_list(self):
         for item in self.update_feeds:
@@ -214,6 +244,7 @@ class PreCache(object):
         assets_list = []
 
         self.build_asset_master_list()
+        self.build_osx_assets()
 
         for item in self.assets_master:
             if item.model not in assets_list:
@@ -223,6 +254,29 @@ class PreCache(object):
         print 'iOS and tvOS models:'
         for i in assets_list:
             print i
+
+    def build_osx_assets(self):
+        for installer in self.osx_installer_urls:
+            os_ver = self.osx_installer_urls[installer]['version']
+            url = ''.join(self.osx_installer_urls[installer]['url'])
+            url = self.convert_asset_url(url)
+            asset = self.Asset(
+                model=installer,
+                download_url=url,
+                os_version=os_ver
+            )
+            if asset not in self.assets_master:
+                self.assets_master.append(asset)
+
+    def cache_osx(self, osx_installer):
+        self.build_osx_assets()
+        for m in osx_installer:
+            for item in self.assets_master:
+                if m in item.model:
+                    self.logger.info(
+                        'Caching %s %s' % (item.model, item.os_version)
+                    )
+                    self.download(item)
 
     def convert_size(self, file_size, precision=2):
         """ Converts the size of remote object to human readable format"""
@@ -245,7 +299,9 @@ class PreCache(object):
             local_file = os.path.join('/dev/null', local_file)
         try:
             if ('.zip' or '.ipsw' or '.xip' in remote_file):
-                req = urllib2.urlopen(remote_file)
+                opener = urllib2.build_opener()
+                opener.addheaders = [self.user_agent]
+                req = opener.open(remote_file)
                 self.logger.debug("Looking for Content-Type header")
                 if req.info().getheader('Content-Type') is not None:
                     self.logger.debug(
@@ -319,7 +375,18 @@ class PreCache(object):
                     f.write(req.read())
                     f.close()
         except (urllib2.URLError, urllib2.HTTPError) as e:
-            print '%s' % e
+            if errno.ECONNREFUSED:
+                print (
+                    """Error: Connection refused. """
+                    """You may need to specify the cache server """
+                    """with the -cs or --caching-server flag. """
+                )
+            elif errno.ETEIMDOUT:
+                print (
+                    """Error: Connection timed out. Try again later."""
+                )
+            else:
+                print '%s' % e
             self.logger.debug('Error downloading file - %s' % e)
             exit(1)
         sleep(0.05)
@@ -377,6 +444,14 @@ def main():
 
     parser = argparse.ArgumentParser(formatter_class=SaneUsageFormat)
 
+    parser.add_argument('-cs', '--caching-server',
+                        type=str,
+                        nargs=1,
+                        dest='cache_server',
+                        metavar='<http://cachingserver:port>',
+                        help='Provide the cache server URL and port',
+                        required=False)
+
     parser.add_argument('-l', '--list',
                         action='store_true',
                         dest='list_models',
@@ -388,7 +463,15 @@ def main():
                         nargs='+',
                         dest='model',
                         metavar='<model>',
-                        help='Provide one or model numbers, i.e iPhone8,2',
+                        help='Provide one or more models, i.e iPhone8,2',
+                        required=False)
+
+    parser.add_argument('-os', '--os-installer',
+                        type=str,
+                        nargs='+',
+                        dest='os',
+                        metavar='<macOS installer>',
+                        help='Provide one or more macOS installers.',
                         required=False)
 
     parser.add_argument('-i', '--ipsw',
@@ -401,15 +484,21 @@ def main():
 
     args = parser.parse_args()
 
-    pop = PreCache(caching_server='http://thor', caching_port='49672')
-
     if len(argv) > 1:
+        try:
+            srv = args.cache_server[0]
+            pop = PreCache(cache_server=srv)
+        except:
+            pop = PreCache()
         if args.list_models:
             pop.list_devices_in_feed()
         if args.model:
             pop.cache_asset(args.model)
         if args.ipsw:
             pop.download_ipsw(args.ipsw)
+        if args.os:
+            pop.cache_osx(args.os)
+
     else:
         parser.print_usage()
         exit(1)
