@@ -3,25 +3,24 @@
 This is a modified version of the precache.py processor available from
 https://github.com/krypted/precache
 
-Differences:
-    This version doesn't require sudo, downloads the files to /tmp/precache,
-    and doesn't download beta releases.
-    A percentage indicator provides feedback for the download progress.
-
-Usage:
-    Before working with this any further, you'll need to change the
-    initialisation of the class PreCache() to specifically point to your
-    caching server.
-
-
-    precache.py [-h] [-l] [-m <model> [<model> ...]]
+    usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
+                       [-m model [model ...]]
+                       [-os macOS release [macOS release ...]]
+                       [-i model [model ...]]
 
     optional arguments:
-          -h, --help            Show this help message and exit
-          -l, --list            Lists models available for caching
-          -m, --model <model> [<model> ...]
-                                Provide one or model numbers, i.e
-                                iPhone8,2
+      -h, --help            show this help message and exit
+      -cs, --caching-server http://cachingserver:port
+                            Provide the cache server URL and port
+      -l, --list            Lists models available for caching
+      -m, --model model [model ...]
+                            Provide one or more models, i.e iPhone8,2
+      -os, --os-installer macOS release [macOS release ...]
+                            Provide one or more macOS releases, i.e Sierra
+      -i, --ipsw model [model ...]
+                            Download IPSW files for one or more models
+
+    Note: Model identifiers and macOS names re currently case sensitive.
 """
 
 import argparse
