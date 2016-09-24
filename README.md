@@ -17,7 +17,7 @@ This version will cache:
 * El Capitan 10.11.6
 * Sierra 10.12.0
 
-To use:
+## Usage
 Make sure `precache.py` is executable: `chmod +x precache.py`
 
 To get a list of supported hardware models and macOS installers: `./precache.py -l`
