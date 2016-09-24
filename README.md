@@ -53,6 +53,7 @@ In some environments, it may be desirable to run this as a LaunchDaemon on a Cac
 The example below has the `precache.py` tool located in `/usr/local/bin` and is set to get the OTA updates for an iPhone8,2 and iPad6,7; it runs on a Wednesday at 19:00.
 
 I've included a copy of this plist in the repo, simply place it in `/Library/LaunchDaemons` and `precache.py` in `/usr/local/bin`.
+
 Make sure the LaunchDaemon is `chown root:wheel && chmod 0644`, and that `/usr/local/bin/precache.py` is `chown root:wheel && chmod 0755`.
 
 If you want to change the day/s when this runs, you can simply change the integer values for `Weekday` to any combination of days, such as `246`. This will run on Tuesday, Thursday, and Saturday.
