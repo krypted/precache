@@ -437,6 +437,7 @@ class PreCache(object):
 
     # Function for downloading macOS installer from Mac App Store
     def cache_osx(self, osx_installer):
+        self.build_asset_master_list()
         for m in osx_installer:
             for item in self.assets_master:
                 if m in item.model:
