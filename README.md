@@ -45,7 +45,7 @@ optional arguments:
   -i, --ipsw model [model ...]
                         Download IPSW files for one or more models
 
-Note: Model identifiers and macOS names re currently case sensitive.
+Note: Model identifiers and macOS names are currently case sensitive.
 ```
 
 ## Suggested Use
