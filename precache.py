@@ -79,7 +79,7 @@ class PreCache(object):
                 self.logger.critical(log_message)
 
         # Configuration of precache
-        l = Logger(log_level='debug', log_path='/tmp/precache.log')
+        l = Logger(log_level='info', log_path='/tmp/precache.log')
         self.log = l.log
         self.debug = l.debug
         self.critical = l.critical
@@ -239,6 +239,7 @@ class PreCache(object):
             print '%s' % e
             exit(1)
 
+    # Builds the asset master list
     def build_asset_master_list(self):
         # iOS/tvOS/watchOS
         for item in self.update_feeds:
@@ -260,6 +261,7 @@ class PreCache(object):
                 self.debug('Added asset %s URL %s' % (asset.model,
                                                       asset.download_url))
 
+    # Converts the asset URL into the right format to cache
     def convert_asset_url(self, asset_url):
         asset_url = urlparse(asset_url)
         asset_url = '%s%s?source=%s' % (self.cache_server,
@@ -283,6 +285,7 @@ class PreCache(object):
         for i in assets_list:
             print i
 
+    # Makes file sizes human friendly
     def convert_size(self, file_size, precision=2):
         """ Converts the size of remote object to human readable format"""
         suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -292,6 +295,7 @@ class PreCache(object):
             file_size = file_size/1024.0
         return '%.*f%s' % (precision, file_size, suffixes[suffix_index])
 
+    # Downloads files, what else do you expect? :P
     def download(self, asset, keep_file=False, download_dir='/tmp/precache'):
         remote_file = asset.download_url
         local_file = remote_file.split("?")[0].split("/")[-1]
@@ -393,6 +397,7 @@ class PreCache(object):
             exit(1)
         sleep(0.05)
 
+    # This is the function called to cache an iOS/tvOS/watchOS asset
     def cache_asset(self, model=None):
         self.build_asset_master_list()
 
@@ -426,6 +431,7 @@ class PreCache(object):
 
         return asset
 
+    # This is called to download the IPSW, passes through to self.download()
     def download_ipsw(self, device_model):
         for model in device_model:
             try:
