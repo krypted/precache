@@ -24,6 +24,8 @@ Before using, make sure `precache.py` is executable: `chmod +x precache.py`.
 If this is used on the Caching server directly, you don't need to use `-cs http://cachingserver:port`.
 
 If this is run on a Mac that is _not_ a Caching server, you will need to supply `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values.
+You can find your caching servers port by running: `sudo serveradmin fullstatus caching`
+
 
 To get a list of supported hardware models and macOS installers: `./precache.py -l`
 
