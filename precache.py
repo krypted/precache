@@ -136,6 +136,60 @@ class PreCache(object):
                                'jze1425880974225146329.pkg']}
         }
 
+        self.ilife_mas_apps = {
+            'GarageBand': {'version': '10.1.2',
+                           'url': ['http://osxapps.itunes.apple.com/',
+                                   'apple-assets-us-std-000001/',
+                                   'Purple30/v4/19/78/8b/',
+                                   '19788bde-3172-3b98-8300-b8c4a9458bae/',
+                                   'iat2506504784673372233.pkg']},
+            'iMovie': {'version': '10.1.2',
+                       'url': ['http://osxapps.itunes.apple.com/',
+                               'apple-assets-us-std-000001/',
+                               'Purple20/v4/80/6d/9b/',
+                               '806d9b4e-776c-baae-574c-ed8afbc70acb/',
+                               'gyj6237528809531298180.pkg']}
+        }
+
+        self.iwork_mas_apps = {
+            'Keynote': {'version': '7.0',
+                        'url': ['http://osxapps.itunes.apple.com/',
+                                'apple-assets-us-std-000001/',
+                                'Purple71/v4/a6/96/42/',
+                                'a696423f-181c-fc2b-b572-3d3697146d47/',
+                                'hlz1727390940373748952.pkg']},
+            'Numbers': {'version': '4.0',
+                        'url': ['http://osxapps.itunes.apple.com/',
+                                'apple-assets-us-std-000001/',
+                                'Purple71/v4/69/02/32/',
+                                '69023287-bd7a-ef14-0424-234d8fc589e4/',
+                                'mto6541029270492763328.pkg']},
+            'Pages': {'version': '6.0',
+                      'url': ['http://osxapps.itunes.apple.com/',
+                              'apple-assets-us-std-000001/',
+                              'Purple62/v4/8a/ee/6e/',
+                              '8aee6e8b-e8cb-2434-b050-31dbbcc01974/',
+                              'daf974703926683564923.pkg']}
+        }
+
+        self.xcode_app = {
+            'Xcode': {'version': '8.0',
+                      'url': ['http://osxapps.itunes.apple.com/',
+                              'apple-assets-us-std-000001/',
+                              'Purple62/v4/ed/3d/8e/',
+                              'ed3d8e87-09da-2272-fc3a-b1678d8067a0/',
+                              'iyp5743666419479406275.pkg']}
+        }
+
+        self.mac_os_server_app = {
+            'macOSServer': {'version': '5.2',
+                            'url': ['http://osxapps.itunes.apple.com/',
+                                    'apple-assets-us-std-000001/',
+                                    'Purple62/v4/44/71/01/',
+                                    '44710118-b2c9-1e31-73f6-fa7a0a26e594/',
+                                    'wjs7031774084062486733.pkg']}
+        }
+
         # Caching Server configuration
         self.cache_config_path = '/Library/Server/Caching/Config/Config.plist'
 
@@ -260,6 +314,64 @@ class PreCache(object):
                 self.assets_master.append(asset)
                 self.debug('Added asset %s URL %s' % (asset.model,
                                                       asset.download_url))
+        # iLife MAS Installers
+        for installer in self.ilife_mas_apps:
+            os_ver = self.ilife_mas_apps[installer]['version']
+            url = ''.join(self.ilife_mas_apps[installer]['url'])
+            url = self.convert_asset_url(url)
+            asset = self.Asset(
+                model=installer,
+                download_url=url,
+                os_version=os_ver
+            )
+            if asset not in self.assets_master:
+                self.assets_master.append(asset)
+                self.debug('Added asset %s URL %s' % (asset.model,
+                                                      asset.download_url))
+        # iWork MAS Installers
+        for installer in self.iwork_mas_apps:
+            os_ver = self.iwork_mas_apps[installer]['version']
+            url = ''.join(self.iwork_mas_apps[installer]['url'])
+            url = self.convert_asset_url(url)
+            asset = self.Asset(
+                model=installer,
+                download_url=url,
+                os_version=os_ver
+            )
+            if asset not in self.assets_master:
+                self.assets_master.append(asset)
+                self.debug('Added asset %s URL %s' % (asset.model,
+                                                      asset.download_url))
+
+        # Xcode MAS Installers
+        for installer in self.xcode_app:
+            os_ver = self.xcode_app[installer]['version']
+            url = ''.join(self.xcode_app[installer]['url'])
+            url = self.convert_asset_url(url)
+            asset = self.Asset(
+                model=installer,
+                download_url=url,
+                os_version=os_ver
+            )
+            if asset not in self.assets_master:
+                self.assets_master.append(asset)
+                self.debug('Added asset %s URL %s' % (asset.model,
+                                                      asset.download_url))
+
+        # macOSServer MAS Installers
+        for installer in self.mac_os_server_app:
+            os_ver = self.mac_os_server_app[installer]['version']
+            url = ''.join(self.mac_os_server_app[installer]['url'])
+            url = self.convert_asset_url(url)
+            asset = self.Asset(
+                model=installer,
+                download_url=url,
+                os_version=os_ver
+            )
+            if asset not in self.assets_master:
+                self.assets_master.append(asset)
+                self.debug('Added asset %s URL %s' % (asset.model,
+                                                      asset.download_url))
 
     # Converts the asset URL into the right format to cache
     def convert_asset_url(self, asset_url):
@@ -281,7 +393,7 @@ class PreCache(object):
                 assets_list.append(item.model)
 
         assets_list.sort()
-        print 'iOS and tvOS models:'
+        print 'Assets available for caching:'
         for i in assets_list:
             print i
 
