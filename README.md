@@ -17,6 +17,15 @@ Logs to `/tmp/precache.log`
 
 **Note** macOS Installers from the Mac App Store are _not_ scraped from an XML feed, instead they have to be updated each time a new release or dot release comes out.
 
+**Current Mac App Store apps (public releases)**
+* Keynote
+* Numbers
+* Pages
+* GarageBand
+* iMovie
+* macOS Server
+* Xcode
+
 ## Usage
 Before using, make sure `precache.py` is executable: `chmod +x precache.py`.
 
