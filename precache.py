@@ -14,7 +14,7 @@ https://github.com/krypted/precache
                             Provide the cache server URL and port
       -l, --list            Lists models available for caching
       -m, --model model [model ...]
-                            Provide one or more models, i.e iPhone8,2
+                            Provide model(s)/app(s), i.e iPhone8,2 Xcode 
       -os, --os-installer macOS release [macOS release ...]
                             Provide one or more macOS releases, i.e Sierra
       -i, --ipsw model [model ...]
