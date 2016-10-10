@@ -621,7 +621,7 @@ def main():
                         nargs='+',
                         dest='model',
                         metavar='model',
-                        help='Provide one or more models, i.e iPhone8,2',
+                        help='Provide model(s)/app(s), i.e iPhone8,2 Xcode',
                         required=False)
 
     parser.add_argument('-os', '--os-installer',
