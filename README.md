@@ -97,7 +97,7 @@ To kickstart the LaunchDaemon, simply:<br />
         <string>iPad6,7</string>
         <string>Sierra</string>
         <string>Pages</string>
-        <string>OSXUpdCombo10.11.6</string>
+        <string>OSXUpdCombo10.11.6Auto</string>
         <string>-i</string>
         <string>iPhone8,2</string>
     </array>
