@@ -33,19 +33,8 @@ A progress indicator provides feedback on how much of the download is left.
 2. Make sure `precache.py` is executable: `chmod +x precache.py`.
 3. Copy to `/usr/local/bin`
 4. Set ownership: `sudo chown root:wheel /usr/local/bin/precache.py`
-5.`precache.py --help` for usage.
+5. See `precache.py --help` for usage.
 
-
-## How it works
-1. The script will first attempt to use `AssetCacheLocatorUtil` (macOS 10.12 or newer) to force the local machine to find the Caching Server for its network.
-2. The script then checks to see if the machine is a Caching Server, and if it is, uses the relevant URL and port.
-3. If the machine isn't a Caching Server, then it checks to see if the machine knows where the Caching Server for its network is located, and if it finds this, uses the relevant URL and port.
-4. If this fails, it falls back to `http://localhost:49672`.
-  * Alternatively, specify which Caching Server to use by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values (you can find your caching servers port by running: `sudo serveradmin fullstatus caching`).
-5. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept (in `/tmp/precache`).
-6. Logs are written out to `/tmp/precache.log`
-
-## `.precache.py --help`
 ```
 usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
                    [-m model [model ...]] [-i model [model ...]] [--version]
@@ -60,9 +49,17 @@ optional arguments:
   -i, --ipsw model [model ...]
                         Download IPSW files for one or more models
   --version             Prints version information
-
-Note: Model identifiers are currently case sensitive.
 ```
+
+## How it works
+1. The script will first attempt to use `AssetCacheLocatorUtil` (macOS 10.12 or newer) to force the local machine to find the Caching Server for its network.
+2. The script then checks to see if the machine is a Caching Server, and if it is, uses the relevant URL and port.
+3. If the machine isn't a Caching Server, then it checks to see if the machine knows where the Caching Server for its network is located, and if it finds this, uses the relevant URL and port.
+4. If this fails, it falls back to `http://localhost:49672`.
+  * Alternatively, specify which Caching Server to use by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values.
+  * You can find your caching servers port by running: `sudo serveradmin fullstatus caching`
+5. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept (in `/tmp/precache`).
+6. Logs are written out to `/tmp/precache.log`
 
 ## Suggested Use
 In some environments, it may be desirable to run this as a LaunchDaemon on a Caching server in order to keep particular assets available. To do this, you could use a basic LaunchDaemon that runs once a day.
@@ -70,54 +67,20 @@ The example below has the `precache.py` tool located in `/usr/local/bin` and is 
 
 A copy of this plist is included in this repo, simply place it in `/Library/LaunchDaemons` and `precache.py` in `/usr/local/bin`.
 
-Make sure the LaunchDaemon is `chown root:wheel && chmod 0644`, and that `/usr/local/bin/precache.py` is `chown root:wheel && chmod 0755`.
+### Using the LaunchDaemon
+1. Copy the LaunchDaemon to `/Library/LaunchDaemons`
+2. Change the ownership: `chown root:wheel /Library/LaunchDaemons/com.github.krypted.precache.plist`
+3. Change the permissions: `chmod 644 /Library/LaunchDaemons/com.github.krypted.precache.plist`
+4. Modify the LaunchDaemon file to suit your needs.
+  * If you're not putting the `precache.py` script in `/usr/local/bin` make sure you adjust the path in the line `<string>/usr/local/bin/precache.py</string>`
+5. Make sure the `precache.py` script is in the correct location and with the correct permissions.
+6. Load the LaunchDaemon: `sudo launchctl load -w /Library/LaunchDaemons/com.github.krypted.precache.plist`
 
 If you want to change the day/s when this runs, you can simply change the integer values for `Weekday` to any combination of days, such as `246`. This will run on Tuesday, Thursday, and Saturday.
 
 To change the time, simply change the integer values for `Hour` and `Minute` - use 24hr time.
 
 Further `StartCalendarInterval` reading: http://stackoverflow.com/questions/3570979/whats-the-difference-between-day-and-weekday-in-launchd-startcalendarinterv
-
-To kickstart the LaunchDaemon, simply:<br />
-`sudo launchctl load -w /Library/LaunchDaemons/com.github.krypted.precache.plist`
-
-### com.github.krypted.precache.plist
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.github.krypted.precache</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/bin/python</string>
-        <string>/usr/local/bin/precache.py</string>
-        <string>-m</string>
-        <string>iPhone8,2</string>
-        <string>iPad6,7</string>
-        <string>Sierra</string>
-        <string>Pages</string>
-        <string>OSXUpdCombo10.11.6Auto</string>
-        <string>-i</string>
-        <string>iPhone8,2</string>
-    </array>
-    <key>StartCalendarInterval</key>
-    <!--  Weekdays are 1 - 5; Sunday is 0 and 7   -->
-    <array>
-        <dict>
-            <key>Weekday</key>
-            <integer>3</integer>
-            <key>Hour</key>
-            <integer>19</integer>
-            <key>Minute</key>
-            <integer>00</integer>
-        </dict>
-
-    </array>
-</dict>
-</plist>
-```
 
 ### Outset
 You could alternatively use outset with a script that calls `precache.py` with relevant flags.
