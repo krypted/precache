@@ -21,6 +21,7 @@ import re
 import subprocess
 import urllib2
 
+from distutils.version import LooseVersion
 from sys import argv
 from sys import exit
 from sys import stdout
@@ -332,23 +333,14 @@ class PreCache(object):
         for item in updates['Products']:
             packages = updates['Products'][item]['Packages']
             for pkg in packages:
-                if re.search('OSXUpdCombo10.(1[0-9])',
-                             pkg['URL']):
-                    url = pkg['URL']
-                    os_ver = re.findall(
-                        r'OSXUpdCombo([\d.]+)', pkg['URL'].split('.pkg')[0]
-                    )[0]
-                    upd_model = 'OSXUpdCombo%s' % os_ver
-                    self.add_asset(upd_model, os_ver, url)
+                if re.search('(OSXUpd[\d.]+|OSXUpdCombo[\d.]+)', pkg['URL']):
 
-                if re.search('OSXUpd10.(1[0-9]).([\d])(Patch|.pkg)',
-                             pkg['URL']):
-                    url = pkg['URL']
-                    os_ver = re.findall(r'OSXUpd([\d.]+)',
-                                        pkg['URL'].split('.pkg')[0])[0]
-                    upd_model = 'OSXUpd%sPatch' % os_ver
-
-                    self.add_asset(upd_model, os_ver, url)
+                    upd_model = os.path.basename(pkg['URL'].split('.pkg')[0])
+                    os_ver = LooseVersion('.'.join(re.findall(r'[\d,]+',
+                                                              upd_model)))
+                    if (os_ver >= LooseVersion('10.10.0') and
+                            'ForSeed' not in upd_model):
+                        self.add_asset(upd_model, os_ver, pkg['URL'])
 
     # Adds an asset into the master assets list
     def add_asset(self, asset_model, os_ver, url):
