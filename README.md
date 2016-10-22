@@ -41,7 +41,7 @@ A progress indicator provides feedback on how much of the download is left.
 2. The script then checks to see if the machine is a Caching Server, and if it is, uses the relevant URL and port.
 3. If the machine isn't a Caching Server, then it checks to see if the machine knows where the Caching Server for its network is located, and if it finds this, uses the relevant URL and port.
 4. If this fails, it falls back to `http://localhost:49672`.
-..* Alternatively, specify which Caching Server to use by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values (you can find your caching servers port by running: `sudo serveradmin fullstatus caching`).
+  * Alternatively, specify which Caching Server to use by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values (you can find your caching servers port by running: `sudo serveradmin fullstatus caching`).
 5. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept (in `/tmp/precache`).
 6. Logs are written out to `/tmp/precache.log`
 
