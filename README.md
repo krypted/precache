@@ -17,7 +17,7 @@ A progress indicator provides feedback on how much of the download is left.
 **Combo software updates for:**
 * Mac OS X Yosemite
 * Mac OS X El Capitan
-* macOS Sierra when released
+* macOS Sierra (when/as released)
 
 **Current Mac App Store apps (public releases)**
 * Keynote
