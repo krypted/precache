@@ -1,12 +1,9 @@
 # precache.py
 
 ## What does it do?
-This can be used to cache over the air updates for iOS, tvOS, and watchOS. It can also be used to download and cache the IPSW's released by Apple (stored in `/tmp/precache` for later retrieval). This can also cache the macOS Installers found in the Mac App Store.
-
+Assets such as iOS/tvOS/watchOS/Mac App Store apps/OS X Installers/Combo Updates are cached through the detected or provided Caching Server.
 If an asset is not currently in cache, it is downloaded; if the asset is in the cache, then the asset is skipped.
 A progress indicator provides feedback on how much of the download is left.
-
-Logs to `/tmp/precache.log`
 
 **Current macOS Installers (public releases)**
 * Mountain Lion 10.8.5
@@ -32,19 +29,23 @@ Logs to `/tmp/precache.log`
 * Xcode
 
 ## Usage
-Before using, make sure `precache.py` is executable: `chmod +x precache.py`.
+1. `git clone https://github.com/krypted/precache`
+2. Make sure `precache.py` is executable: `chmod +x precache.py`.
+3. Copy to `/usr/local/bin`
+4. Set ownership: `sudo chown root:wheel /usr/local/bin/precache.py`
+5.`precache.py --help` for usage.
 
+
+## How it works
 1. The script will first attempt to use `AssetCacheLocatorUtil` (macOS 10.12 or newer) to force the local machine to find the Caching Server for its network.
 2. The script then checks to see if the machine is a Caching Server, and if it is, uses the relevant URL and port.
 3. If the machine isn't a Caching Server, then it checks to see if the machine knows where the Caching Server for its network is located, and if it finds this, uses the relevant URL and port.
 4. If this fails, it falls back to `http://localhost:49672`.
+* Alternatively, specify which Caching Server to use by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values (you can find your caching servers port by running: `sudo serveradmin fullstatus caching`).
+5. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept (in `/tmp/precache`).
+6. Logs are written out to `/tmp/precache.log`
 
-Alternatively, you can provide the Caching Server URL and port by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values.
-You can find your caching servers port by running: `sudo serveradmin fullstatus caching`
-
-
-To get a list of supported hardware models and macOS installers: `./precache.py -l`
-
+## `.precache.py --help`
 ```
 usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
                    [-m model [model ...]] [-i model [model ...]] [--version]
@@ -67,7 +68,7 @@ Note: Model identifiers are currently case sensitive.
 In some environments, it may be desirable to run this as a LaunchDaemon on a Caching server in order to keep particular assets available. To do this, you could use a basic LaunchDaemon that runs once a day.
 The example below has the `precache.py` tool located in `/usr/local/bin` and is set to get the OTA updates for an iPhone8,2 and iPad6,7; it runs on a Wednesday at 19:00.
 
-I've included a copy of this plist in the repo, simply place it in `/Library/LaunchDaemons` and `precache.py` in `/usr/local/bin`.
+A copy of this plist is included in this repo, simply place it in `/Library/LaunchDaemons` and `precache.py` in `/usr/local/bin`.
 
 Make sure the LaunchDaemon is `chown root:wheel && chmod 0644`, and that `/usr/local/bin/precache.py` is `chown root:wheel && chmod 0755`.
 
