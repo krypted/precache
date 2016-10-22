@@ -118,4 +118,6 @@ To kickstart the LaunchDaemon, simply `sudo launchctl load -w /Library/LaunchDae
 ```
 
 ### Outset
-You could alternatively use outset - https://github.com/chilcote/outset
+You could alternatively use outset with a script that calls `precache.py` with relevant flags.
+
+Outset is available from https://github.com/chilcote/outset
