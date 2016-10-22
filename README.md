@@ -75,7 +75,7 @@ If you want to change the day/s when this runs, you can simply change the intege
 
 To change the time, simply change the integer values for `Hour` and `Minute` - use 24hr time.
 
-Further StartCalendarInterval reading: http://stackoverflow.com/questions/3570979/whats-the-difference-between-day-and-weekday-in-launchd-startcalendarinterv
+Further `StartCalendarInterval` reading: http://stackoverflow.com/questions/3570979/whats-the-difference-between-day-and-weekday-in-launchd-startcalendarinterv
 
 To kickstart the LaunchDaemon, simply:<br />
 `sudo launchctl load -w /Library/LaunchDaemons/com.github.krypted.precache.plist`
