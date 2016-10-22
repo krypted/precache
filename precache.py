@@ -1,26 +1,14 @@
 #!/usr/bin/python
 """
-This is a modified version of the precache.py processor available from
-https://github.com/krypted/precache
+precache.py is a tool that can be used to cache OTA updates for iOS, tvOS, and
+watchOS, as well as download and cache IPSW files released by Apple.
+macOS Combo updates are also cached, and the iLife, iWork, Xcode, Server apps
+from the Mac App Store can also be cached.
+macOS Installers are alo cacheable.
 
-    usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
-                       [-m model [model ...]]
-                       [-os macOS release [macOS release ...]]
-                       [-i model [model ...]]
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -cs, --caching-server http://cachingserver:port
-                            Provide the cache server URL and port
-      -l, --list            Lists models available for caching
-      -m, --model model [model ...]
-                            Provide model(s)/app(s), i.e iPhone8,2 Xcode 
-      -os, --os-installer macOS release [macOS release ...]
-                            Provide one or more macOS releases, i.e Sierra
-      -i, --ipsw model [model ...]
-                            Download IPSW files for one or more models
-
-    Note: Model identifiers and macOS names re currently case sensitive.
+For more information: https://github.com/krypted/precache
+For usage: ./precache.py --help
+Note: Model identifiers are currently case sensitive.
 """
 
 import argparse
@@ -29,6 +17,8 @@ import errno
 import logging
 import os
 import plistlib
+import re
+import subprocess
 import urllib2
 
 from sys import argv
@@ -45,6 +35,8 @@ class PreCache(object):
             server, if it isn't, then use values provided by arguments when the
             object is initialised.
             Can also override by providing those arguments."""
+        self.version = '1.0.9'
+        self.git_repo = 'https://github.com/krypted/precache'
 
         # Logging class
         class Logger():
@@ -89,6 +81,12 @@ class PreCache(object):
         self.mobile_asset_path = 'com_apple_MobileAsset_SoftwareUpdate'
         self.xml_url = 'com_apple_MobileAsset_SoftwareUpdate.xml'
 
+        self.osx_update_feed = (
+            """https://swscan.apple.com/content/catalogs/"""
+            """others/index-10.12-10.11-10.10-10.9-"""
+            """mountainlion-lion-snowleopard-leopard.merged-1.sucatalog"""
+        )
+
         self.update_feeds = {
             'watch': '%s/watch/%s/%s' % (self.base_feed_url,
                                          self.mobile_asset_path,
@@ -101,9 +99,9 @@ class PreCache(object):
                                  self.xml_url),
         }
 
-        # macOS Installer URLs from Mac App Store. These are likely to change
+        # Assets from Mac App Store. These are likely to change
         # with each macOS release
-        self.osx_installer_urls = {
+        self.mas_assets = {
             'MountainLion': {'version': '10.8.5',
                              'url': ['http://osxapps.itunes.apple.com/',
                                      'apple-assets-us-std-000001/',
@@ -133,10 +131,7 @@ class PreCache(object):
                                'apple-assets-us-std-000001/',
                                'Purple62/v4/af/5f/9d/',
                                'af5f9d8e-cf9c-8147-c51c-c3c1fececb99/',
-                               'jze1425880974225146329.pkg']}
-        }
-
-        self.ilife_mas_apps = {
+                               'jze1425880974225146329.pkg']},
             'GarageBand': {'version': '10.1.2',
                            'url': ['http://osxapps.itunes.apple.com/',
                                    'apple-assets-us-std-000001/',
@@ -148,10 +143,7 @@ class PreCache(object):
                                'apple-assets-us-std-000001/',
                                'Purple20/v4/80/6d/9b/',
                                '806d9b4e-776c-baae-574c-ed8afbc70acb/',
-                               'gyj6237528809531298180.pkg']}
-        }
-
-        self.iwork_mas_apps = {
+                               'gyj6237528809531298180.pkg']},
             'Keynote': {'version': '7.0',
                         'url': ['http://osxapps.itunes.apple.com/',
                                 'apple-assets-us-std-000001/',
@@ -169,19 +161,13 @@ class PreCache(object):
                               'apple-assets-us-std-000001/',
                               'Purple62/v4/8a/ee/6e/',
                               '8aee6e8b-e8cb-2434-b050-31dbbcc01974/',
-                              'daf974703926683564923.pkg']}
-        }
-
-        self.xcode_app = {
+                              'daf974703926683564923.pkg']},
             'Xcode': {'version': '8.0',
                       'url': ['http://osxapps.itunes.apple.com/',
                               'apple-assets-us-std-000001/',
                               'Purple62/v4/ed/3d/8e/',
                               'ed3d8e87-09da-2272-fc3a-b1678d8067a0/',
-                              'iyp5743666419479406275.pkg']}
-        }
-
-        self.mac_os_server_app = {
+                              'iyp5743666419479406275.pkg']},
             'macOSServer': {'version': '5.2',
                             'url': ['http://osxapps.itunes.apple.com/',
                                     'apple-assets-us-std-000001/',
@@ -195,30 +181,10 @@ class PreCache(object):
 
         # Check if the machine is running Caching Server and configure port
         if not cache_server:
-            fallback_srv = 'http://localhost:49672'
-            if os.path.exists(self.cache_config_path):
-                try:
-                    self.cache_srv_conf = plistlib.readPlist(
-                        self.cache_config_path
-                    )
-                    self.cache_server_port = self.cache_srv_conf['Port']
-                    self.cache_server = 'http://localhost:%s' % (
-                        self.cache_server_port
-                    )
-                    self.debug('Local machine appears to be a Caching Server')
-                except:
-                    self.cache_server = fallback_srv
-                    self.debug('Using fallback caching server %s' %
-                               self.cache_server)
-            else:
-                self.cache_server = fallback_srv
-                self.debug('Using fallback caching server %s' %
-                           self.cache_server)
+            self.find_cache_server()
 
         if cache_server:
             self.cache_server = cache_server
-
-        self.log('Using caching server %s' % self.cache_server)
 
         self.exclude_beta = True
         if self.exclude_beta:
@@ -234,6 +200,58 @@ class PreCache(object):
         self.Asset = collections.namedtuple('Asset', ['model',
                                                       'download_url',
                                                       'os_version'])
+
+    def version_info(self):
+        print '%s version: %s' % (argv[0], self.version)
+        print 'More information available: %s' % self.git_repo
+
+    def find_cache_server(self):
+        fallback_srv = 'http://localhost:49672'
+        try:
+            subprocess.Popen(['/usr/bin/AssetCacheLocatorUtil'],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.log('Forced caching server detection refresh')
+        except:
+            self.debug('Forced caching server detection failed')
+            pass
+
+        if os.path.exists(self.cache_config_path):
+            try:
+                self.cache_srv_conf = plistlib.readPlist(
+                    self.cache_config_path
+                )
+                self.cache_server_port = self.cache_srv_conf['Port']
+                self.cache_server = 'http://localhost:%s' % (
+                    self.cache_server_port
+                )
+                self.debug('Local machine appears to be a Caching Server')
+            except:
+                self.cache_server = fallback_srv
+                self.debug('Using fallback caching server %s' %
+                           self.cache_server)
+        else:
+            try:
+                self.disk_cache, self.error = subprocess.Popen(
+                    ['/usr/bin/getconf DARWIN_USER_CACHE_DIR'],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    shell=True).communicate()
+                self.disk_cache = self.disk_cache.strip('\n')
+                self.disk_cache = os.path.join(
+                    self.disk_cache,
+                    'com.apple.AssetCacheLocatorService/diskCache.plist'
+                )
+                self.debug('Using configuration from %s' % self.disk_cache)
+                plist = plistlib.readPlist(self.disk_cache)
+                self.cache_server = (
+                    plist['cache'][0]['servers'][0]['localAddressAndPort']
+                )
+                self.cache_server = 'http://%s' % self.cache_server
+            except:
+                self.cache_server = fallback_srv
+                self.debug('Using fallback caching server %s' %
+                           self.cache_server)
+
+        self.log('Remote Caching server found at %s' % self.cache_server)
 
     # Process the iOS/tvOS/watchOS XML feeds
     def process_update_feed(self, feed_url):
@@ -259,33 +277,17 @@ class PreCache(object):
                 if item.get('OSVersion'):
                     os_ver = item['OSVersion']
 
-                url = self.convert_asset_url(url)
-
-                asset = self.Asset(
-                    model=hr_model[0],
-                    download_url=url,
-                    os_version=os_ver
-                )
-
-                if 'Watch' not in asset.model:
+                if 'Watch' not in hr_model[0]:
                     if (
                         item.get('__CanUseLocalCacheServer') and
                         item['__CanUseLocalCacheServer']
                     ):
-                        if asset not in self.assets_master:
-                            if not item.get('ReleaseType') == 'Beta':
-                                self.assets_master.append(asset)
-                                self.debug(
-                                    'Added asset URL %s' % url
-                                )
+                        self.add_asset(hr_model[0], os_ver, url)
 
-                if 'Watch' in asset.model:
-                    if asset not in self.assets_master:
-                        if not item.get('ReleaseType') == 'Beta':
-                            self.assets_master.append(asset)
-                            self.debug(
-                                'Added asset %s URL %s' % (asset.model, url)
-                            )
+                if 'Watch' in hr_model[0]:
+                    if not item.get('ReleaseType') == 'Beta':
+                        self.add_asset(hr_model[0], os_ver, url)
+
                 self.debug('Completed processing update feed %s' % feed_url)
 
         except (urllib2.URLError, urllib2.HTTPError) as e:
@@ -295,83 +297,72 @@ class PreCache(object):
 
     # Builds the asset master list
     def build_asset_master_list(self):
+        # Advise which URL is used for caching server
+        print 'Found Caching Server: %s' % self.cache_server
+
         # iOS/tvOS/watchOS
+        print 'Processing iOS device feeds'
         for item in self.update_feeds:
             self.debug('Processing item %s' % item)
             self.process_update_feed(self.update_feeds[item])
 
-        # macOS Installers
-        for installer in self.osx_installer_urls:
-            os_ver = self.osx_installer_urls[installer]['version']
-            url = ''.join(self.osx_installer_urls[installer]['url'])
-            url = self.convert_asset_url(url)
-            asset = self.Asset(
-                model=installer,
-                download_url=url,
-                os_version=os_ver
-            )
-            if asset not in self.assets_master:
-                self.assets_master.append(asset)
-                self.debug('Added asset %s URL %s' % (asset.model,
-                                                      asset.download_url))
-        # iLife MAS Installers
-        for installer in self.ilife_mas_apps:
-            os_ver = self.ilife_mas_apps[installer]['version']
-            url = ''.join(self.ilife_mas_apps[installer]['url'])
-            url = self.convert_asset_url(url)
-            asset = self.Asset(
-                model=installer,
-                download_url=url,
-                os_version=os_ver
-            )
-            if asset not in self.assets_master:
-                self.assets_master.append(asset)
-                self.debug('Added asset %s URL %s' % (asset.model,
-                                                      asset.download_url))
-        # iWork MAS Installers
-        for installer in self.iwork_mas_apps:
-            os_ver = self.iwork_mas_apps[installer]['version']
-            url = ''.join(self.iwork_mas_apps[installer]['url'])
-            url = self.convert_asset_url(url)
-            asset = self.Asset(
-                model=installer,
-                download_url=url,
-                os_version=os_ver
-            )
-            if asset not in self.assets_master:
-                self.assets_master.append(asset)
-                self.debug('Added asset %s URL %s' % (asset.model,
-                                                      asset.download_url))
+        # Mac App Store
+        print 'Processing Mac App Store items'
+        self.build_mas_assets_list()
 
-        # Xcode MAS Installers
-        for installer in self.xcode_app:
-            os_ver = self.xcode_app[installer]['version']
-            url = ''.join(self.xcode_app[installer]['url'])
-            url = self.convert_asset_url(url)
-            asset = self.Asset(
-                model=installer,
-                download_url=url,
-                os_version=os_ver
-            )
-            if asset not in self.assets_master:
-                self.assets_master.append(asset)
-                self.debug('Added asset %s URL %s' % (asset.model,
-                                                      asset.download_url))
+        # macOS X Software Updates
+        print 'Processing macOS Software Update catalog\n'
+        self.build_os_x_combo_list()
 
-        # macOSServer MAS Installers
-        for installer in self.mac_os_server_app:
-            os_ver = self.mac_os_server_app[installer]['version']
-            url = ''.join(self.mac_os_server_app[installer]['url'])
-            url = self.convert_asset_url(url)
-            asset = self.Asset(
-                model=installer,
-                download_url=url,
-                os_version=os_ver
+    # Builds MAS assets into master list
+    def build_mas_assets_list(self):
+        for mas_asset in self.mas_assets:
+            os_ver = self.mas_assets[mas_asset]['version']
+            url = (
+                ''.join(self.mas_assets[mas_asset]['url'])
             )
-            if asset not in self.assets_master:
-                self.assets_master.append(asset)
-                self.debug('Added asset %s URL %s' % (asset.model,
-                                                      asset.download_url))
+
+            self.add_asset(mas_asset, os_ver, url)
+
+    # Builds a list of macOS X Combo updates & adds to the master assets list
+    def build_os_x_combo_list(self):
+        response = urllib2.urlopen(self.osx_update_feed)
+        updates = plistlib.readPlistFromString(response.read())
+
+        for item in updates['Products']:
+            packages = updates['Products'][item]['Packages']
+            for pkg in packages:
+                if re.search('OSXUpdCombo10.(1[0-9])',
+                             pkg['URL']):
+                    url = pkg['URL']
+                    os_ver = re.findall(
+                        r'OSXUpdCombo([\d.]+)', pkg['URL'].split('.pkg')[0]
+                    )[0]
+                    upd_model = 'OSXUpdCombo%s' % os_ver
+                    self.add_asset(upd_model, os_ver, url)
+
+                if re.search('OSXUpd10.(1[0-9]).([\d])(Patch|.pkg)',
+                             pkg['URL']):
+                    url = pkg['URL']
+                    os_ver = re.findall(r'OSXUpd([\d.]+)',
+                                        pkg['URL'].split('.pkg')[0])[0]
+                    upd_model = 'OSXUpd%sPatch' % os_ver
+
+                    self.add_asset(upd_model, os_ver, url)
+
+    # Adds an asset into the master assets list
+    def add_asset(self, asset_model, os_ver, url):
+        url = self.convert_asset_url(url)
+        asset = self.Asset(
+            model=asset_model,
+            download_url=url,
+            os_version=os_ver
+        )
+
+        if asset not in self.assets_master:
+            self.assets_master.append(asset)
+            self.debug('Added asset %s URL %s' % (
+                asset.model, asset.download_url))
 
     # Converts the asset URL into the right format to cache
     def convert_asset_url(self, asset_url):
@@ -384,18 +375,44 @@ class PreCache(object):
 
     # Function for listing assets available to be cached
     def list_devices_in_feed(self):
-        assets_list = []
-
         self.build_asset_master_list()
 
+        assets_list = []
         for item in self.assets_master:
             if item.model not in assets_list:
                 assets_list.append(item.model)
 
+        ipad_assets = []
+        ipod_assets = []
+        iphone_assets = []
+        tv_assets = []
+        watch_assets = []
+
         assets_list.sort()
-        print 'Assets available for caching:'
-        for i in assets_list:
-            print i
+        for item in assets_list:
+            if 'iPad' in item:
+                ipad_assets.append(item)
+
+        for item in assets_list:
+            if 'iPod' in item:
+                ipod_assets.append(item)
+
+        for item in assets_list:
+            if 'iPhone' in item:
+                iphone_assets.append(item)
+
+        for item in assets_list:
+            if 'AppleTV' in item:
+                tv_assets.append(item)
+
+        for item in assets_list:
+            if 'Watch' in item:
+                watch_assets.append(item)
+
+        print 'Cacheable assets:'
+        for a, b, c in zip(assets_list[::3], assets_list[1::3],
+                           assets_list[2::3]):
+            print '{:<20}{:<20}{:<}'.format(a, b, c)
 
     # Makes file sizes human friendly
     def convert_size(self, file_size, precision=2):
@@ -462,7 +479,7 @@ class PreCache(object):
                         percent = float(bytes_so_far) / ts
                         percent = round(percent*100, 2)
 
-                        stdout.write("\r%s - OS Ver: %s [%0.2f%% of %s]" % (
+                        stdout.write("\r%s - Version: %s [%0.2f%% of %s]" % (
                             asset.model,
                             asset.os_version,
                             percent,
@@ -490,6 +507,7 @@ class PreCache(object):
                     f.close()
         except (urllib2.URLError, urllib2.HTTPError) as e:
             if errno.ECONNREFUSED:
+                print remote_file
                 print (
                     """Error: Connection refused. """
                     """You may need to specify the cache server """
@@ -553,17 +571,6 @@ class PreCache(object):
                 self.debug('Not sure what error comes up here, so bam: %s' % e)
                 pass
 
-    # Function for downloading macOS installer from Mac App Store
-    def cache_osx(self, osx_installer):
-        self.build_asset_master_list()
-        for m in osx_installer:
-            for item in self.assets_master:
-                if m in item.model:
-                    self.log(
-                        'Caching %s %s' % (item.model, item.os_version)
-                    )
-                    self.download(item)
-
 
 def main():
     class SaneUsageFormat(argparse.HelpFormatter):
@@ -624,20 +631,18 @@ def main():
                         help='Provide model(s)/app(s), i.e iPhone8,2 Xcode',
                         required=False)
 
-    parser.add_argument('-os', '--os-installer',
-                        type=str,
-                        nargs='+',
-                        dest='os',
-                        metavar='macOS release',
-                        help='Provide one or more macOS releases, i.e Sierra',
-                        required=False)
-
     parser.add_argument('-i', '--ipsw',
                         type=str,
                         nargs='+',
                         dest='ipsw',
                         metavar='model',
                         help='Download IPSW files for one or more models',
+                        required=False)
+
+    parser.add_argument('--version',
+                        action='store_true',
+                        dest='vers',
+                        help='Prints version information',
                         required=False)
 
     args = parser.parse_args()
@@ -655,8 +660,8 @@ def main():
                 pop.cache_asset(args.model)
             if args.ipsw:
                 pop.download_ipsw(args.ipsw)
-            if args.os:
-                pop.cache_osx(args.os)
+            if args.vers:
+                pop.version_info()
         except KeyboardInterrupt:
             print ''
             exit(1)

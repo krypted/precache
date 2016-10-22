@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.carlashley.precache</string>
+    <string>com.github.krypted.precache</string>
     <key>ProgramArguments</key>
     <array>
         <string>/usr/bin/python</string>
@@ -11,6 +11,11 @@
         <string>-m</string>
         <string>iPhone8,2</string>
         <string>iPad6,7</string>
+        <string>Sierra</string>
+        <string>Pages</string>
+        <string>OSXUpdCombo10.11.6</string>
+        <string>-i</string>
+        <string>iPhone8,2</string>
     </array>
     <key>StartCalendarInterval</key>
     <!--  Weekdays are 1 - 5; Sunday is 0 and 7   -->
@@ -27,3 +32,4 @@
     </array>
 </dict>
 </plist>
+

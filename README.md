@@ -17,6 +17,11 @@ Logs to `/tmp/precache.log`
 
 **Note** macOS Installers from the Mac App Store are _not_ scraped from an XML feed, instead they have to be updated each time a new release or dot release comes out.
 
+**Combo software updates for:**
+* Mac OS X Yosemite
+* Mac OS X El Capitan
+* macOS Sierra when released
+
 **Current Mac App Store apps (public releases)**
 * Keynote
 * Numbers
@@ -29,9 +34,12 @@ Logs to `/tmp/precache.log`
 ## Usage
 Before using, make sure `precache.py` is executable: `chmod +x precache.py`.
 
-If this is used on the Caching server directly, you don't need to use `-cs http://cachingserver:port`.
+1. The script will first attempt to use `AssetCacheLocatorUtil` (macOS 10.12 or newer) to force the local machine to find the Caching Server for its network.
+2. The script then checks to see if the machine is a Caching Server, and if it is, uses the relevant URL and port.
+3. If the machine isn't a Caching Server, then it checks to see if the machine knows where the Caching Server for its network is located, and if it finds this, uses the relevant URL and port.
+4. If this fails, it falls back to `http://localhost:49672`.
 
-If this is run on a Mac that is _not_ a Caching server, you will need to supply `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values.
+Alternatively, you can provide the Caching Server URL and port by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values.
 You can find your caching servers port by running: `sudo serveradmin fullstatus caching`
 
 
@@ -39,9 +47,7 @@ To get a list of supported hardware models and macOS installers: `./precache.py 
 
 ```
 usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
-                   [-m model [model ...]]
-                   [-os macOS release [macOS release ...]]
-                   [-i model [model ...]]
+                   [-m model [model ...]] [-i model [model ...]] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -50,12 +56,11 @@ optional arguments:
   -l, --list            Lists models available for caching
   -m, --model model [model ...]
                         Provide model(s)/app(s), i.e iPhone8,2 Xcode
-  -os, --os-installer macOS release [macOS release ...]
-                        Provide one or more macOS releases, i.e Sierra
   -i, --ipsw model [model ...]
                         Download IPSW files for one or more models
+  --version             Prints version information
 
-Note: Model identifiers and macOS names are currently case sensitive.
+Note: Model identifiers are currently case sensitive.
 ```
 
 ## Suggested Use
@@ -89,6 +94,11 @@ To kickstart the LaunchDaemon, simply `sudo launchctl load -w /Library/LaunchDae
         <string>-m</string>
         <string>iPhone8,2</string>
         <string>iPad6,7</string>
+        <string>Sierra</string>
+        <string>Pages</string>
+        <string>OSXUpdCombo10.11.6</string>
+        <string>-i</string>
+        <string>iPhone8,2</string>
     </array>
     <key>StartCalendarInterval</key>
     <!--  Weekdays are 1 - 5; Sunday is 0 and 7   -->
