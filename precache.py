@@ -22,6 +22,7 @@ import subprocess
 import urllib2
 
 from distutils.version import LooseVersion
+from distutils.version import StrictVersion
 from sys import argv
 from sys import exit
 from sys import stdout
@@ -313,7 +314,7 @@ class PreCache(object):
 
         # macOS X Software Updates
         print 'Processing macOS Software Update catalog\n'
-        self.build_os_x_combo_list()
+        self.build_os_x_updates()
 
     # Builds MAS assets into master list
     def build_mas_assets_list(self):
@@ -326,21 +327,59 @@ class PreCache(object):
             self.add_asset(mas_asset, os_ver, url)
 
     # Builds a list of macOS X Combo updates & adds to the master assets list
-    def build_os_x_combo_list(self):
-        response = urllib2.urlopen(self.osx_update_feed)
-        updates = plistlib.readPlistFromString(response.read())
+    def build_os_x_updates(self):
+        try:
+            self.log('Downloading Software Update Catalog %s' %
+                     self.osx_update_feed)
+            response = urllib2.urlopen(self.osx_update_feed)
+            self.log('Reading the Software Update Catalog')
+            updates = plistlib.readPlistFromString(response.read())
 
-        for item in updates['Products']:
-            packages = updates['Products'][item]['Packages']
-            for pkg in packages:
-                if re.search('(OSXUpd[\d.]+|OSXUpdCombo[\d.]+)', pkg['URL']):
-
-                    upd_model = os.path.basename(pkg['URL'].split('.pkg')[0])
-                    os_ver = LooseVersion('.'.join(re.findall(r'[\d,]+',
-                                                              upd_model)))
-                    if (os_ver >= LooseVersion('10.10.0') and
-                            'ForSeed' not in upd_model):
-                        self.add_asset(upd_model, os_ver, pkg['URL'])
+            self.log('Checking Software Update Catalog for matching assets')
+            for item in updates['Products']:
+                packages = updates['Products'][item]['Packages']
+                for pkg in packages:
+                    # OSXUpd10.11.6Patch
+                    if re.search('(iTunesX|OSXUpd|Safari|RAWCameraUpdate)',
+                                 pkg['URL']):
+                        basename = os.path.basename(
+                            pkg['URL'].split('.pkg')[0]
+                        )
+                        # SMD file is a plist with version info this saves on
+                        # using regex, and therefore I don't loose more hair!
+                        smd = '%s.smd' % os.path.splitext(pkg['URL'])[0]
+                        try:
+                            response = urllib2.urlopen(smd)
+                            smd_info = plistlib.readPlistFromString(
+                                response.read()
+                            )
+                            os_ver = smd_info['CFBundleShortVersionString']
+                            if 'OSX' in basename:
+                                if (os_ver >= StrictVersion('10.10.0') and
+                                        'ForSeed' not in basename):
+                                    self.add_asset(
+                                        basename, os_ver, pkg['URL']
+                                    )
+                            if 'Safari' in basename:
+                                if (os_ver >= LooseVersion('10.0') and
+                                        'TechPreview' not in basename):
+                                    self.add_asset(
+                                        basename, os_ver, pkg['URL']
+                                    )
+                            if 'iTunesX' in basename:
+                                if os_ver >= LooseVersion('12.0'):
+                                    self.add_asset(
+                                        basename, os_ver, pkg['URL']
+                                    )
+                            if 'RAWCamera' in basename:
+                                if os_ver >= LooseVersion('6.0'):
+                                    self.add_asset(
+                                        basename, os_ver, pkg['URL']
+                                    )
+                        except:
+                            pass
+        except:
+            pass
 
     # Adds an asset into the master assets list
     def add_asset(self, asset_model, os_ver, url):
@@ -373,38 +412,14 @@ class PreCache(object):
         for item in self.assets_master:
             if item.model not in assets_list:
                 assets_list.append(item.model)
-
-        ipad_assets = []
-        ipod_assets = []
-        iphone_assets = []
-        tv_assets = []
-        watch_assets = []
-
-        assets_list.sort()
-        for item in assets_list:
-            if 'iPad' in item:
-                ipad_assets.append(item)
-
-        for item in assets_list:
-            if 'iPod' in item:
-                ipod_assets.append(item)
-
-        for item in assets_list:
-            if 'iPhone' in item:
-                iphone_assets.append(item)
-
-        for item in assets_list:
-            if 'AppleTV' in item:
-                tv_assets.append(item)
-
-        for item in assets_list:
-            if 'Watch' in item:
-                watch_assets.append(item)
+                self.debug('Added %s to list output' % item.model)
 
         print 'Cacheable assets:'
-        for a, b, c in zip(assets_list[::3], assets_list[1::3],
-                           assets_list[2::3]):
-            print '{:<20}{:<20}{:<}'.format(a, b, c)
+        for item in assets_list:
+            print item
+        # for a, b, c in zip(assets_list[::3], assets_list[1::3],
+        #                    assets_list[2::3]):
+        #     print '{:<30}{:<30}{:<}'.format(a, b, c)
 
     # Makes file sizes human friendly
     def convert_size(self, file_size, precision=2):
@@ -417,7 +432,10 @@ class PreCache(object):
         return '%.*f%s' % (precision, file_size, suffixes[suffix_index])
 
     # Downloads files, what else do you expect? :P
-    def download(self, asset, keep_file=False, download_dir='/tmp/precache'):
+    def download(self, asset, keep_file=False, download_dir=None):
+        if not download_dir:
+            download_dir = '/tmp/precache'
+
         remote_file = asset.download_url
         local_file = remote_file.split("?")[0].split("/")[-1]
 
@@ -540,7 +558,8 @@ class PreCache(object):
 
     # Functions for downloading IPSW's
     def cache_ipsw(self, device_model):
-        url = 'http://api.ipsw.me/v2.1/%s/latest/url' % device_model
+        # Use ipsw.me API to get the IPSW location from Apple
+        url = 'https://api.ipsw.me/v2.1/%s/latest/url' % device_model
         req = urllib2.urlopen(url)
         ipsw_url = urlparse(req.read())
         os_ver = ipsw_url.path.split('/')[1]
@@ -548,6 +567,8 @@ class PreCache(object):
                                        ipsw_url.path,
                                        ipsw_url.netloc)
 
+        # Creates the named tuple so we can pass through to the self.download()
+        # function simply.
         asset = self.Asset(
             model=device_model + ' (ipsw)',
             download_url=ipsw_url,
@@ -557,11 +578,15 @@ class PreCache(object):
         return asset
 
     # This is called to download the IPSW, passes through to self.download()
-    def download_ipsw(self, device_model):
+    def download_ipsw(self, device_model, download_dir=None):
+        if download_dir:
+            download_dir = os.path.expanduser(download_dir)
+            download_dir = os.path.expandvars(download_dir)
+
         for model in device_model:
             try:
                 asset = self.cache_ipsw(model)
-                self.download(asset, keep_file=True)
+                self.download(asset, keep_file=True, download_dir=download_dir)
             except Exception as e:
                 self.debug('Not sure what error comes up here, so bam: %s' % e)
                 pass
@@ -609,13 +634,13 @@ def main():
                         nargs=1,
                         dest='cache_server',
                         metavar='http://cachingserver:port',
-                        help='Provide the cache server URL and port',
+                        help='Provide the cache server URL and port.',
                         required=False)
 
     parser.add_argument('-l', '--list',
                         action='store_true',
                         dest='list_models',
-                        help='Lists models available for caching',
+                        help='Lists models available for caching.',
                         required=False)
 
     parser.add_argument('-m', '--model',
@@ -623,7 +648,7 @@ def main():
                         nargs='+',
                         dest='model',
                         metavar='model',
-                        help='Provide model(s)/app(s), i.e iPhone8,2 Xcode',
+                        help='Provide model(s)/app(s), i.e iPhone8,2 Xcode.',
                         required=False)
 
     parser.add_argument('-i', '--ipsw',
@@ -631,13 +656,21 @@ def main():
                         nargs='+',
                         dest='ipsw',
                         metavar='model',
-                        help='Download IPSW files for one or more models',
+                        help='Download IPSW files for one or more models.',
+                        required=False)
+
+    parser.add_argument('-o', '--output',
+                        type=str,
+                        nargs=1,
+                        dest='output_dir',
+                        metavar='<file path>',
+                        help='Path to save IPSW files to.',
                         required=False)
 
     parser.add_argument('--version',
                         action='store_true',
                         dest='vers',
-                        help='Prints version information',
+                        help='Prints version information.',
                         required=False)
 
     args = parser.parse_args()
@@ -654,7 +687,11 @@ def main():
             if args.model:
                 pop.cache_asset(args.model)
             if args.ipsw:
-                pop.download_ipsw(args.ipsw)
+                if args.output_dir:
+                    download_dir = args.output_dir[0]
+                    pop.download_ipsw(args.ipsw, download_dir=download_dir)
+                else:
+                    pop.download_ipsw(args.ipsw)
             if args.vers:
                 pop.version_info()
         except KeyboardInterrupt:

@@ -37,18 +37,21 @@ A progress indicator provides feedback on how much of the download is left.
 
 ```
 usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
-                   [-m model [model ...]] [-i model [model ...]] [--version]
+                   [-m model [model ...]] [-i model [model ...]]
+                   [-o <file path>] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
   -cs, --caching-server http://cachingserver:port
-                        Provide the cache server URL and port
-  -l, --list            Lists models available for caching
+                        Provide the cache server URL and port.
+  -l, --list            Lists models available for caching.
   -m, --model model [model ...]
-                        Provide model(s)/app(s), i.e iPhone8,2 Xcode
+                        Provide model(s)/app(s), i.e iPhone8,2 Xcode.
   -i, --ipsw model [model ...]
-                        Download IPSW files for one or more models
-  --version             Prints version information
+                        Download IPSW files for one or more models.
+  -o, --output <file path>
+                        Path to save IPSW files to.
+  --version             Prints version information.
 ```
 
 ## How it works
@@ -58,7 +61,8 @@ optional arguments:
 4. If this fails, it falls back to `http://localhost:49672`.
   * Alternatively, specify which Caching Server to use by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values.
   * You can find your caching servers port by running: `sudo serveradmin fullstatus caching`
-5. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept (in `/tmp/precache`).
+5. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept.
+  * IPSW files are saved in `/tmp/precache` by default. Use the `-o` or `--output` flag with a file path to save to a specific location.
 6. Logs are written out to `/tmp/precache.log`
 
 ## Suggested Use
