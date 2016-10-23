@@ -420,13 +420,16 @@ class PreCache(object):
     def download(self, asset, keep_file=False, download_dir='/tmp/precache'):
         remote_file = asset.download_url
         local_file = remote_file.split("?")[0].split("/")[-1]
+
         if keep_file:
             if not os.path.isdir(download_dir):
                 os.mkdir(download_dir)
-                local_file = os.path.join(download_dir, local_file)
-                f = open(local_file, 'wb')
-                self.log('Saving IPSW %s to %s' % (remote_file, local_file))
-                print 'IPSW saving to %s' % local_file
+                self.log('Created %s directory for IPSW files' % download_dir)
+
+            local_file = os.path.join(download_dir, local_file)
+            f = open(local_file, 'wb')
+            self.log('Saving IPSW %s to %s' % (remote_file, local_file))
+
         if not keep_file:
             local_file = os.path.join('/dev/null', local_file)
 
