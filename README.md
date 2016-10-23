@@ -41,14 +41,20 @@ usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
                    [-o <file path>] [--version]
 
 optional arguments:
+```
+usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
+                   [-i model [model ...]] [-m model [model ...]]
+                   [-o <file path>] [--version]
+
+optional arguments:
   -h, --help            show this help message and exit
   -cs, --caching-server http://cachingserver:port
                         Provide the cache server URL and port.
   -l, --list            Lists models available for caching.
-  -m, --model model [model ...]
-                        Provide model(s)/app(s), i.e iPhone8,2 Xcode.
   -i, --ipsw model [model ...]
                         Download IPSW files for one or more models.
+  -m, --model model [model ...]
+                        Provide model(s)/app(s), i.e iPhone8,2 Xcode.
   -o, --output <file path>
                         Path to save IPSW files to.
   --version             Prints version information.
