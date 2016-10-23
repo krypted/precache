@@ -29,14 +29,14 @@ from urlparse import urlparse
 
 
 class PreCache(object):
-    def __init__(self, cache_server=None, log_level='info'):
+    def __init__(self, cache_server=None, include_beta=False):
         """ Initialise the object with some basic configurations
             When initialising, detect if the script is running on the cache
             server, if it isn't, then use values provided by arguments when the
             object is initialised.
             Can also override by providing those arguments."""
 
-        self.version = '1.0.9'
+        self.version = '1.0.10'
         self.git_repo = 'https://github.com/krypted/precache'
 
         # Logging class
@@ -187,12 +187,15 @@ class PreCache(object):
         if cache_server:
             self.cache_server = cache_server
 
-        self.exclude_beta = True
-        if self.exclude_beta:
-            self.log('Ignoring beta releases')
+        print('Using Caching Server: %s' % self.cache_server)
+        self.log('Remote Caching server found at %s' % self.cache_server)
 
-        if not self.exclude_beta:
-            self.log('Includng beta releases')
+        self.include_beta = include_beta
+        if self.include_beta:
+            self.log('Including beta releases')
+
+        if not self.include_beta:
+            self.log('Ignoring beta releases')
 
         # Assets master list - where all found items get stored for download
         self.assets_master = []
@@ -252,7 +255,21 @@ class PreCache(object):
                 self.debug('Using fallback caching server %s' %
                            self.cache_server)
 
-        self.log('Remote Caching server found at %s' % self.cache_server)
+    # Test for beta
+    def is_beta(self, asset):
+        if asset.get('ReleaseType'):
+            if 'Beta' in asset['ReleaseType']:
+                return True
+        else:
+            return False
+
+    # Test if cacheable
+    def test_cacheable(self, asset):
+        if (asset.get('__CanUseLocalCacheServer') and
+                asset['__CanUseLocalCacheServer']):
+            return True
+        else:
+            return False
 
     # Process the iOS/tvOS/watchOS XML feeds
     def process_update_feed(self, feed_url):
@@ -266,28 +283,31 @@ class PreCache(object):
             feed_data = plistlib.readPlistFromString(response.read())
 
             for item in feed_data['Assets']:
-                if item.get('SupportedDevices'):
-                    hr_model = item['SupportedDevices']
+                if not self.is_beta(item):
+                    if item.get('SupportedDevices'):
+                        hr_model = item['SupportedDevices'][0]
 
-                if item.get('RealUpdateAttributes'):
-                    url = item['RealUpdateAttributes']['RealUpdateURL']
-                else:
-                    url = '%s%s' % (item['__BaseURL'],
-                                    item['__RelativePath'])
+                    if item.get('RealUpdateAttributes'):
+                        url = item['RealUpdateAttributes']['RealUpdateURL']
+                    else:
+                        url = '%s%s' % (item['__BaseURL'],
+                                        item['__RelativePath'])
 
-                if item.get('OSVersion'):
-                    os_ver = item['OSVersion']
+                    if item.get('OSVersion'):
+                        os_ver = item['OSVersion']
 
-                if 'Watch' not in hr_model[0]:
-                    if (
-                        item.get('__CanUseLocalCacheServer') and
-                        item['__CanUseLocalCacheServer']
-                    ):
-                        self.add_asset(hr_model[0], os_ver, url)
+                    if 'Watch' not in hr_model:
+                        if self.test_cacheable:
+                            # if item.get('ReleaseType'):
+                            #     rel_type = item['ReleaseType']
+                            # else:
+                            #     rel_type = 'None'
+                            # print '%s %s %s' % (hr_model, os_ver, rel_type)
+                            self.add_asset(hr_model, os_ver, url)
 
-                if 'Watch' in hr_model[0]:
-                    if not item.get('ReleaseType') == 'Beta':
-                        self.add_asset(hr_model[0], os_ver, url)
+                    if 'Watch' in hr_model:
+                        if not self.include_beta:
+                            self.add_asset(hr_model, os_ver, url)
 
                 self.debug('Completed processing update feed %s' % feed_url)
 
@@ -299,7 +319,6 @@ class PreCache(object):
     # Builds the asset master list
     def build_asset_master_list(self):
         # Advise which URL is used for caching server
-        print('Found Caching Server: %s' % self.cache_server)
         print('Processing feeds. This may take a few moments.')
         # iOS/tvOS/watchOS
         for item in self.update_feeds:
@@ -411,6 +430,7 @@ class PreCache(object):
                 self.debug('Added %s to list output' % item.model)
 
         print('Cacheable assets:')
+        assets_list.sort()
         for item in assets_list:
             print(item)
 
@@ -621,6 +641,12 @@ def main():
 
     parser = argparse.ArgumentParser(formatter_class=SaneUsageFormat)
 
+    parser.add_argument('-b', '--beta',
+                        action='store_true',
+                        dest='beta',
+                        help='Include beta iOS/watchOS/tvOS releases.',
+                        required=False)
+
     parser.add_argument('-cs', '--caching-server',
                         type=str,
                         nargs=1,
@@ -635,20 +661,20 @@ def main():
                         help='Lists models available for caching.',
                         required=False)
 
-    parser.add_argument('-m', '--model',
-                        type=str,
-                        nargs='+',
-                        dest='model',
-                        metavar='model',
-                        help='Provide model(s)/app(s), i.e iPhone8,2 Xcode.',
-                        required=False)
-
     parser.add_argument('-i', '--ipsw',
                         type=str,
                         nargs='+',
                         dest='ipsw',
                         metavar='model',
                         help='Download IPSW files for one or more models.',
+                        required=False)
+
+    parser.add_argument('-m', '--model',
+                        type=str,
+                        nargs='+',
+                        dest='model',
+                        metavar='model',
+                        help='Provide model(s)/app(s), i.e iPhone8,2 Xcode.',
                         required=False)
 
     parser.add_argument('-o', '--output',
@@ -674,6 +700,7 @@ def main():
                 pop = PreCache(cache_server=srv)
             except:
                 pop = PreCache()
+
             if args.list_models:
                 pop.list_devices_in_feed()
             if args.model:
