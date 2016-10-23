@@ -298,11 +298,6 @@ class PreCache(object):
 
                     if 'Watch' not in hr_model:
                         if self.test_cacheable:
-                            # if item.get('ReleaseType'):
-                            #     rel_type = item['ReleaseType']
-                            # else:
-                            #     rel_type = 'None'
-                            # print '%s %s %s' % (hr_model, os_ver, rel_type)
                             self.add_asset(hr_model, os_ver, url)
 
                     if 'Watch' in hr_model:
@@ -640,12 +635,6 @@ def main():
             return action.dest.upper()
 
     parser = argparse.ArgumentParser(formatter_class=SaneUsageFormat)
-
-    parser.add_argument('-b', '--beta',
-                        action='store_true',
-                        dest='beta',
-                        help='Include beta iOS/watchOS/tvOS releases.',
-                        required=False)
 
     parser.add_argument('-cs', '--caching-server',
                         type=str,
