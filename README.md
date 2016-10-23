@@ -31,7 +31,7 @@ A progress indicator provides feedback on how much of the download is left.
 ## Usage
 1. `git clone https://github.com/krypted/precache`
 2. Make sure `precache.py` is executable: `chmod +x precache.py`
-3. Copy to `/usr/local/bin`
+3. Copy `precache.py` to `/usr/local/bin`
 4. Set ownership: `sudo chown root:wheel /usr/local/bin/precache.py`
 5. See `precache.py --help` for usage
 
