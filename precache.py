@@ -19,13 +19,11 @@ import os
 import plistlib
 import re
 import subprocess
+import sys
 import urllib2
 
 from distutils.version import LooseVersion
 from distutils.version import StrictVersion
-from sys import argv
-from sys import exit
-from sys import stdout
 from time import sleep
 from urlparse import urlparse
 
@@ -37,6 +35,7 @@ class PreCache(object):
             server, if it isn't, then use values provided by arguments when the
             object is initialised.
             Can also override by providing those arguments."""
+
         self.version = '1.0.9'
         self.git_repo = 'https://github.com/krypted/precache'
 
@@ -204,8 +203,8 @@ class PreCache(object):
                                                       'os_version'])
 
     def version_info(self):
-        print '%s version: %s' % (argv[0], self.version)
-        print 'More information available: %s' % self.git_repo
+        print('%s version: %s' % (sys.argv[0], self.version))
+        print('More information available: %s' % self.git_repo)
 
     def find_cache_server(self):
         fallback_srv = 'http://localhost:49672'
@@ -294,26 +293,23 @@ class PreCache(object):
 
         except (urllib2.URLError, urllib2.HTTPError) as e:
             self.debug('Exception (%s) processing feed %s' % (e, feed_url))
-            print '%s' % e
-            exit(1)
+            print('%s' % e)
+            sys.exit(1)
 
     # Builds the asset master list
     def build_asset_master_list(self):
         # Advise which URL is used for caching server
-        print 'Found Caching Server: %s' % self.cache_server
-
+        print('Found Caching Server: %s' % self.cache_server)
+        print('Processing feeds. This may take a few moments.')
         # iOS/tvOS/watchOS
-        print 'Processing iOS device feeds'
         for item in self.update_feeds:
             self.debug('Processing item %s' % item)
             self.process_update_feed(self.update_feeds[item])
 
         # Mac App Store
-        print 'Processing Mac App Store items'
         self.build_mas_assets_list()
 
         # macOS X Software Updates
-        print 'Processing macOS Software Update catalog\n'
         self.build_os_x_updates()
 
     # Builds MAS assets into master list
@@ -414,12 +410,9 @@ class PreCache(object):
                 assets_list.append(item.model)
                 self.debug('Added %s to list output' % item.model)
 
-        print 'Cacheable assets:'
+        print('Cacheable assets:')
         for item in assets_list:
-            print item
-        # for a, b, c in zip(assets_list[::3], assets_list[1::3],
-        #                    assets_list[2::3]):
-        #     print '{:<30}{:<30}{:<}'.format(a, b, c)
+            print(item)
 
     # Makes file sizes human friendly
     def convert_size(self, file_size, precision=2):
@@ -449,7 +442,7 @@ class PreCache(object):
             self.log('Saving IPSW %s to %s' % (remote_file, local_file))
 
         if not keep_file:
-            local_file = os.path.join('/dev/null', local_file)
+            local_file = os.path.join(os.devnull, local_file)
 
         try:
             if ('.zip' or '.ipsw' or '.xip' in remote_file):
@@ -479,7 +472,7 @@ class PreCache(object):
                     while True:
                         buffer = req.read(8192)
                         if not buffer:
-                            print ''
+                            print('')
                             break
 
                         bytes_so_far += len(buffer)
@@ -492,14 +485,15 @@ class PreCache(object):
                         percent = float(bytes_so_far) / ts
                         percent = round(percent*100, 2)
 
-                        stdout.write("\r%s - Version: %s [%0.2f%% of %s]" % (
-                            asset.model,
-                            asset.os_version,
-                            percent,
-                            human_fs
+                        sys.stdout.write(
+                            "\r%s - Version: %s [%0.2f%% of %s]" % (
+                                asset.model,
+                                asset.os_version,
+                                percent,
+                                human_fs
                             )
                         )
-                        stdout.flush()
+                        sys.stdout.flush()
 
                     self.log(
                         'Cached %s %s from %s' % (asset.model,
@@ -507,21 +501,21 @@ class PreCache(object):
                                                   remote_file)
                     )
                 else:
-                    print 'Skipping %s - already in cache' % asset.model
+                    print('Skipping %s - already in cache' % asset.model)
                     self.log(
                         'Already in cache %s %s' % (asset.model, remote_file)
                     )
             else:
                 req = urllib2.urlopen(remote_file)
-                print 'Caching %s (%s)' % (asset.model[0],
-                                           asset.os_version)
+                print('Caching %s (%s)' % (asset.model[0],
+                                           asset.os_version))
                 with open(local_file, 'wb') as f:
                     f.write(req.read())
                     f.close()
         except (urllib2.URLError, urllib2.HTTPError) as e:
             if errno.ECONNREFUSED:
-                print remote_file
-                print (
+                print(remote_file)
+                print(
                     """Error: Connection refused. """
                     """You may need to specify the cache server """
                     """with the -cs or --caching-server flag. """
@@ -530,14 +524,14 @@ class PreCache(object):
                     'Connection refused. Check Caching Server URL is correct'
                 )
             elif errno.ETEIMDOUT:
-                print (
+                print(
                     """Error: Connection timed out. Try again later."""
                 )
                 self.log('Connection timed out. Try again later.')
             else:
-                print '%s' % e
+                print('%s' % e)
             self.debug('Exception (%s) downloading %s' % (e, remote_file))
-            exit(1)
+            sys.exit(1)
         sleep(0.05)
 
     # This is the function called to cache an iOS/tvOS/watchOS asset
@@ -551,10 +545,8 @@ class PreCache(object):
                     if m in item.model:
                         self.download(item)
         else:
-            print 'Caching all models'
-            self.log('Caching all models')
-            for item in self.assets_master:
-                self.download(item)
+            print('Whoah there... Perhaps supply some models to cache.')
+            sys.exit(1)
 
     # Functions for downloading IPSW's
     def cache_ipsw(self, device_model):
@@ -675,7 +667,7 @@ def main():
 
     args = parser.parse_args()
 
-    if len(argv) > 1:
+    if len(sys.argv) > 1:
         try:
             try:
                 srv = args.cache_server[0]
@@ -696,11 +688,11 @@ def main():
                 pop.version_info()
         except KeyboardInterrupt:
             print ''
-            exit(1)
+            sys.exit(1)
 
     else:
         parser.print_usage()
-        exit(1)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
