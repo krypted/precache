@@ -36,7 +36,7 @@ class PreCache(object):
             object is initialised.
             Can also override by providing those arguments."""
 
-        self.version = '1.0.10'
+        self.version = '1.0.11'
         self.git_repo = 'https://github.com/krypted/precache'
 
         # Logging class
