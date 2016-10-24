@@ -350,8 +350,7 @@ class PreCache(object):
                 packages = updates['Products'][item]['Packages']
                 for pkg in packages:
                     # OSXUpd10.11.6Patch
-                    if re.search('(iTunesX|OSXUpd|Safari|RAWCameraUpdate)',
-                                 pkg['URL']):
+                    if re.search('(iTunesX|macOSUpd|OSXUpd|Safari|RAWCameraUpdate)', pkg['URL']):  # NOQA
                         basename = os.path.basename(
                             pkg['URL'].split('.pkg')[0]
                         )
@@ -364,15 +363,25 @@ class PreCache(object):
                                 response.read()
                             )
                             os_ver = smd_info['CFBundleShortVersionString']
+                        except:
+                            # Fail safe in case there is no SMD to pull
+                            # version info from
+                            os_ver = re.findall(r'[\d.]+', basename)[0]
+
+                        if not re.search('(ForSeed|TechPreview)',
+                                         basename):
                             if 'OSX' in basename:
-                                if (os_ver >= StrictVersion('10.10.0') and
-                                        'ForSeed' not in basename):
+                                if os_ver >= StrictVersion('10.10.0'):
+                                    self.add_asset(
+                                        basename, os_ver, pkg['URL']
+                                    )
+                            if 'macOSUpd' in basename:
+                                if os_ver >= StrictVersion('10.10.0'):
                                     self.add_asset(
                                         basename, os_ver, pkg['URL']
                                     )
                             if 'Safari' in basename:
-                                if (os_ver >= LooseVersion('10.0') and
-                                        'TechPreview' not in basename):
+                                if os_ver >= LooseVersion('10.0'):
                                     self.add_asset(
                                         basename, os_ver, pkg['URL']
                                     )
@@ -386,8 +395,6 @@ class PreCache(object):
                                     self.add_asset(
                                         basename, os_ver, pkg['URL']
                                     )
-                        except:
-                            pass
         except:
             pass
 
