@@ -41,7 +41,6 @@ usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
                    [-o <file path>] [--version]
 
 optional arguments:
-```
 usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
                    [-i model [model ...]] [-m model [model ...]]
                    [-o <file path>] [--version]
