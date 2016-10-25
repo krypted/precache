@@ -37,11 +37,6 @@ A progress indicator provides feedback on how much of the download is left.
 
 ```
 usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
-                   [-m model [model ...]] [-i model [model ...]]
-                   [-o <file path>] [--version]
-
-optional arguments:
-usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
                    [-i model [model ...]] [-m model [model ...]]
                    [-o <file path>] [--version]
 
