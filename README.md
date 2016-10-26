@@ -35,7 +35,7 @@ A progress indicator provides feedback on how much of the download is left.
 4. Set ownership: `sudo chown root:wheel /usr/local/bin/precache.py`
 5. See `precache.py --help` for usage
 
-**Note** If you're game enough, you can specify the `--yes-i-really-want-to-download-everything` flag, You will need over 600GB of space for these assets alone.
+**Note** If you're game enough, you can specify the `--yes-i-really-want-to-download-everything` flag. You will need over 600GB of space for these assets alone.
 
 ```
 usage: precache.py [-h] [--yes-i-really-want-to-download-everything]
