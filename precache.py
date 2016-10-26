@@ -535,6 +535,7 @@ class PreCache(object):
                         except AttributeError:
                             header = False
                             human_fs = 0
+
                     if header:
                         ts = int(ts)
                     bytes_so_far = 0
@@ -573,6 +574,7 @@ class PreCache(object):
                                                   asset.os_version,
                                                   remote_file)
                     )
+                    req.close()
                 else:
                     print('Skipping %s (%s) - already cached' % (
                         asset.model, asset.os_version))
@@ -587,6 +589,7 @@ class PreCache(object):
                 with open(local_file, 'wb') as f:
                     f.write(req.read())
                     f.close()
+                req.close()
         except (urllib2.URLError, urllib2.HTTPError) as e:
             if errno.ECONNREFUSED:
                 print(remote_file)
@@ -607,23 +610,41 @@ class PreCache(object):
                 print('%s' % e)
             self.debug('Exception (%s) downloading %s' % (e, remote_file))
             sys.exit(1)
+
         sleep(0.05)
 
     # This is the function called to cache an iOS/tvOS/watchOS asset
-    def cache_asset(self, model=None):
+    def cache_asset(self, model=None, all_things=False):
         self.build_asset_master_list()
 
-        if model:
-            self.log('Caching model %s' % model)
-            for m in model:
+        if all_things:
+            print 'Warning, this will download over 600GB of content!'
+            text = raw_input(
+                'Please press enter to continue (CTRL+C to break)'
+            )
+            if text == "":
+                self.log(
+                    'Some crazy person just downloaded all the things!'
+                )
                 for item in self.assets_master:
-                    if m == item.model:
-                        self.download(item)
-                    else:
+                    self.log('Caching model %s' % item.model)
+                    self.download(item)
+                    try:
+                        self.download_ipsw(item.model)
+                    except:
                         pass
         else:
-            print('Whoah there... Perhaps supply some models to cache.')
-            sys.exit(1)
+            if model:
+                self.log('Caching model %s' % model)
+                for m in model:
+                    for item in self.assets_master:
+                        if m == item.model:
+                            self.download(item)
+                        else:
+                            pass
+            else:
+                print('Whoah there... Perhaps supply some models to cache.')
+                sys.exit(1)
 
     # Functions for downloading IPSW's
     def cache_ipsw(self, device_model):
@@ -659,6 +680,9 @@ class PreCache(object):
             except Exception as e:
                 self.debug('Not sure what error comes up here, so bam: %s' % e)
                 pass
+            except KeyboardInterrupt:
+                print ''
+                sys.exit(1)
 
 
 def main():
@@ -677,12 +701,12 @@ def main():
                 parts = []
 
                 # if the Optional doesn't take a value, format is:
-                #    -s, --long
+                #   -s, --long
                 if action.nargs == 0:
                     parts.extend(action.option_strings)
 
                 # if the Optional takes a value, format is:
-                #    -s ARGS, --long ARGS
+                #   -s ARGS, --long ARGS
                 else:
                     default = self._get_default_metavar_for_optional(action)
                     args_string = self._format_args(action, default)
@@ -697,6 +721,12 @@ def main():
             return action.dest.upper()
 
     parser = argparse.ArgumentParser(formatter_class=SaneUsageFormat)
+
+    parser.add_argument('--yes-i-really-want-to-download-everything',
+                        action='store_true',
+                        dest='download_all',
+                        help='Downloads all the things, you crazy person.',
+                        required=False)
 
     parser.add_argument('-cs', '--caching-server',
                         type=str,
@@ -749,11 +779,16 @@ def main():
             try:
                 srv = args.cache_server[0]
                 pop = PreCache(cache_server=srv)
+            except KeyboardInterrupt:
+                print ''
+                sys.exit(1)
             except:
                 pop = PreCache()
 
             if args.list_models:
                 pop.list_devices_in_feed()
+            if args.download_all:
+                pop.cache_asset(all_things=True)
             if args.model:
                 pop.cache_asset(args.model)
             if args.ipsw:
@@ -774,4 +809,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print ''
+        sys.exit(1)
