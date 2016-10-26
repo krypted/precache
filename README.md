@@ -55,7 +55,7 @@ optional arguments:
                         Provide model(s)/app(s), i.e iPhone8,2 Xcode.
   -o, --output <file path>
                         Path to save IPSW files to.
-  --version
+  --version             Prints version information.
 ```
 
 ## How it works
