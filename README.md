@@ -35,13 +35,17 @@ A progress indicator provides feedback on how much of the download is left.
 4. Set ownership: `sudo chown root:wheel /usr/local/bin/precache.py`
 5. See `precache.py --help` for usage
 
+**Note** If you're game enough, you can specify the `--yes-i-really-want-to-download-everything` flag, You will need over 600GB of space for these assets alone.
+
 ```
-usage: precache.py [-h] [-cs http://cachingserver:port] [-l]
-                   [-i model [model ...]] [-m model [model ...]]
-                   [-o <file path>] [--version]
+usage: precache.py [-h] [--yes-i-really-want-to-download-everything]
+                   [-cs http://cachingserver:port] [-l] [-i model [model ...]]
+                   [-m model [model ...]] [-o <file path>] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
+  --yes-i-really-want-to-download-everything
+                        Downloads all the things, you crazy person.
   -cs, --caching-server http://cachingserver:port
                         Provide the cache server URL and port.
   -l, --list            Lists models available for caching.
@@ -51,7 +55,7 @@ optional arguments:
                         Provide model(s)/app(s), i.e iPhone8,2 Xcode.
   -o, --output <file path>
                         Path to save IPSW files to.
-  --version             Prints version information.
+  --version
 ```
 
 ## How it works
