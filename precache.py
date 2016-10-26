@@ -617,8 +617,10 @@ class PreCache(object):
             self.log('Caching model %s' % model)
             for m in model:
                 for item in self.assets_master:
-                    if m in item.model:
+                    if m == item.model:
                         self.download(item)
+                    else:
+                        pass
         else:
             print('Whoah there... Perhaps supply some models to cache.')
             sys.exit(1)
