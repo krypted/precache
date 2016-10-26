@@ -36,7 +36,7 @@ class PreCache(object):
             object is initialised.
             Can also override by providing those arguments."""
 
-        self.version = '1.0.11'
+        self.version = '1.0.12'
         self.git_repo = 'https://github.com/krypted/precache'
 
         # Logging class
@@ -296,13 +296,14 @@ class PreCache(object):
                     if item.get('OSVersion'):
                         os_ver = item['OSVersion']
 
-                    if 'Watch' not in hr_model:
-                        if self.test_cacheable:
-                            self.add_asset(hr_model, os_ver, url)
+                    if len(os_ver.split('.')) < 4:
+                        if 'Watch' not in hr_model:
+                            if self.test_cacheable:
+                                self.add_asset(hr_model, os_ver, url)
 
-                    if 'Watch' in hr_model:
-                        if not self.include_beta:
-                            self.add_asset(hr_model, os_ver, url)
+                        if 'Watch' in hr_model:
+                            if not self.include_beta:
+                                self.add_asset(hr_model, os_ver, url)
 
                 self.debug('Completed processing update feed %s' % feed_url)
 
@@ -350,13 +351,17 @@ class PreCache(object):
                 packages = updates['Products'][item]['Packages']
                 for pkg in packages:
                     # OSXUpd10.11.6Patch
-                    if re.search('(iTunesX|macOSUpd|OSXUpd|Safari|RAWCameraUpdate)', pkg['URL']):  # NOQA
+                    regex_search = (
+                        r"(iTunesX|macOSUpd|OSXUpd|Safari|RAWCameraUpdate)"
+                    )
+                    if re.search(regex_search, pkg['URL']):
                         basename = os.path.basename(
                             pkg['URL'].split('.pkg')[0]
                         )
+                        pkg_url = pkg['URL']
                         # SMD file is a plist with version info this saves on
                         # using regex, and therefore I don't loose more hair!
-                        smd = '%s.smd' % os.path.splitext(pkg['URL'])[0]
+                        smd = '%s.smd' % os.path.splitext(pkg_url)[0]
                         try:
                             response = urllib2.urlopen(smd)
                             smd_info = plistlib.readPlistFromString(
@@ -373,27 +378,55 @@ class PreCache(object):
                             if 'OSX' in basename:
                                 if os_ver >= StrictVersion('10.10.0'):
                                     self.add_asset(
-                                        basename, os_ver, pkg['URL']
+                                        basename, os_ver, pkg_url
                                     )
                             if 'macOSUpd' in basename:
                                 if os_ver >= StrictVersion('10.10.0'):
                                     self.add_asset(
-                                        basename, os_ver, pkg['URL']
+                                        basename, os_ver, pkg_url
                                     )
+                                    try:
+                                        base_url = os.path.split(pkg_url)[0]
+                                        firmware_name = (
+                                            '%s-Firmware' % basename
+                                        )
+                                        firmware_url = os.path.join(
+                                            base_url, 'FirmwareUpdate.pkg'
+                                        )
+                                        self.add_asset(
+                                            firmware_name, os_ver, firmware_url
+                                        )
+                                    except:
+                                        pass
+
+                                    try:
+                                        full_bundle_name = (
+                                            '%s-FullBundle' % basename
+                                        )
+                                        full_bundle_url = os.path.join(
+                                            base_url, 'FullBundleUpdate.pkg'
+                                        )
+                                        self.add_asset(
+                                            full_bundle_name, os_ver,
+                                            full_bundle_url
+                                        )
+                                    except:
+                                        pass
+
                             if 'Safari' in basename:
                                 if os_ver >= LooseVersion('10.0'):
                                     self.add_asset(
-                                        basename, os_ver, pkg['URL']
+                                        basename, os_ver, pkg_url
                                     )
                             if 'iTunesX' in basename:
                                 if os_ver >= LooseVersion('12.0'):
                                     self.add_asset(
-                                        basename, os_ver, pkg['URL']
+                                        basename, os_ver, pkg_url
                                     )
                             if 'RAWCamera' in basename:
                                 if os_ver >= LooseVersion('6.0'):
                                     self.add_asset(
-                                        basename, os_ver, pkg['URL']
+                                        basename, os_ver, pkg_url
                                     )
         except:
             pass
@@ -448,6 +481,21 @@ class PreCache(object):
 
     # Downloads files, what else do you expect? :P
     def download(self, asset, keep_file=False, download_dir=None):
+        # UA for macOS: MacAppStore/2.2 (Macintosh; OS X 10.12.1; 16B2555)
+        # AppleWebKit/2602.2.14.0.7
+        # UA for iOS: itunesstored/1.0
+        if 'osxapps' in asset.download_url:
+            cache_header = (
+                """MacAppStore/2.2 (Macintosh; OS X 10.12.1; 16B2555) """
+                """AppleWebKit/2602.2.14.0.7"""
+            )
+        elif 'iosapps' in asset.download_url:
+            cache_header = (
+                'itunesstored/1.0'
+            )
+        else:
+            cache_header = 'com.apple.appstored/1.0'
+
         if not download_dir:
             download_dir = '/tmp/precache'
 
@@ -468,7 +516,10 @@ class PreCache(object):
 
         try:
             if ('.zip' or '.ipsw' or '.xip' in remote_file):
-                req = urllib2.urlopen(remote_file)
+                request = urllib2.Request(remote_file)
+                request.add_unredirected_header('User-Agent', cache_header)
+                req = urllib2.urlopen(request)
+
                 if req.info().getheader('Content-Type') is not None:
                     try:
                         self.debug('Attempting to fetch %s' % remote_file)
@@ -523,10 +574,12 @@ class PreCache(object):
                                                   remote_file)
                     )
                 else:
-                    print('Skipping %s - already in cache' % asset.model)
+                    print('Skipping %s (%s) - already cached' % (
+                        asset.model, asset.os_version))
                     self.log(
-                        'Already in cache %s %s' % (asset.model, remote_file)
-                    )
+                        'Already cached %s (%s) %s' % (asset.model,
+                                                       asset.os_version,
+                                                       remote_file))
             else:
                 req = urllib2.urlopen(remote_file)
                 print('Caching %s (%s)' % (asset.model[0],
