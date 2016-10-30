@@ -11,11 +11,11 @@
         <string>-m</string>
         <string>iPhone8,2</string>
         <string>iPad6,7</string>
-        <string>Sierra</string>
         <string>Pages</string>
         <string>OSXUpdCombo10.11.6</string>
-        <string>-i</string>
-        <string>iPhone8,2</string>
+        <string>--cache-group</string>
+        <string>updates</string>
+        <string>installer</string>
     </array>
     <key>StartCalendarInterval</key>
     <!--  Weekdays are 1 - 5; Sunday is 0 and 7   -->

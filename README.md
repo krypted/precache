@@ -6,16 +6,12 @@ If an asset is not currently in cache, it is downloaded; if the asset is in the 
 A progress indicator provides feedback on how much of the download is left.
 
 **Current macOS Installers (public releases)**
-* Mountain Lion 10.8.5
-* Mavericks 10.9.5
-* Yosemite 10.10.5
 * El Capitan 10.11.6
 * Sierra 10.12.0
 
 **Note** macOS Installers from the Mac App Store are _not_ scraped from an XML feed, instead they have to be updated each time a new release or dot release comes out.
 
 **Combo software updates for:**
-* Mac OS X Yosemite
 * Mac OS X El Capitan
 * macOS Sierra (when/as released)
 
@@ -35,27 +31,46 @@ A progress indicator provides feedback on how much of the download is left.
 4. Set ownership: `sudo chown root:wheel /usr/local/bin/precache.py`
 5. See `precache.py --help` for usage
 
-**Note** If you're game enough, you can specify the `--yes-i-really-want-to-download-everything` flag. You will need over 600GB of space for these assets alone.
-
+### Help
 ```
-usage: precache.py [-h] [--yes-i-really-want-to-download-everything]
-                   [-cs http://cachingserver:port] [-l] [-i model [model ...]]
-                   [-m model [model ...]] [-o <file path>] [--version]
+usage: precache.py [-h] [--cache-group <product name> [<product name> ...]]
+                   [--cache-ipsw-group <product name> [<product name> ...]]
+                   [-cs http://cacheserver:port] [--debug] [-n]
+                   [--filter-group <product name> [<product name> ...]]
+                   [-i model [model ...]] [-l] [-m model [model ...]]
+                   [-o file path]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --yes-i-really-want-to-download-everything
-                        Downloads all the things, you crazy person.
-  -cs, --caching-server http://cachingserver:port
-                        Provide the cache server URL and port.
-  -l, --list            Lists models available for caching.
+  --cache-group <product name> [<product name> ...]
+                        Cache assets based on group
+  --cache-ipsw-group <product name> [<product name> ...]
+                        Cache IPSW based on group
+  -cs, --cache-server http://cacheserver:port
+                        Specify the cache server to use.
+  --debug               Debug mode - increased log verbosity.
+  -n, --dry-run         Shows what would be cached.
+  --filter-group <product name> [<product name> ...]
+                        Filter based on group
   -i, --ipsw model [model ...]
-                        Download IPSW files for one or more models.
+                        Cache IPSW for provided model/s.
+  -l, --list            Lists all assets available for caching.
   -m, --model model [model ...]
                         Provide model(s)/app(s), i.e iPhone8,2 Xcode.
-  -o, --output <file path>
+  -o, --output file path
                         Path to save IPSW files to.
-  --version             Prints version information.
+```
+
+### Sample output
+```
+[user@valkyrie]: # precache.py --cache-group installer --cache-ipsw-group iPod -i iPhone8,2 -o ~/Desktop/ipsw/
+Caching Server: http://192.168.1.16:49672
+Processing feeds. This may take a few moments.
+Skipped: ElCapitan (10.11.6) - in cache
+Skipped: Sierra (10.12.1) - in cache
+Caching: iPod5,1 (9.3.5) [100.00% of 1.50GB]
+Caching: iPod7,1 (10.1) [100.00% of 2.03GB]
+Skipped: iPhone8,2 (10.1) - in cache
 ```
 
 ## How it works
@@ -63,11 +78,12 @@ optional arguments:
 2. The script then checks to see if the machine is a Caching Server, and if it is, uses the relevant URL and port
 3. If the machine isn't a Caching Server, then it checks to see if the machine knows where the Caching Server for its network is located, and if it finds this, uses the relevant URL and port
 4. If this fails, it falls back to `http://localhost:49672`
+5. When initalised, a test confirms that the caching server can be accessed. If not, the script exits.
   * Alternatively, specify which Caching Server to use by using the flag `-cs http://cachingserver:port` - where `cachingserver:port` are the appropriate values
   * You can find your caching servers port by running: `sudo serveradmin fullstatus caching`
-5. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept
+6. Files are downloaded through the Caching Server; if the asset is already in the cache, it is skipped. Only IPSW files are kept
   * IPSW files are saved in `/tmp/precache` by default. Use the `-o` or `--output` flag with a file path to save to a specific location
-6. Logs are written out to `/tmp/precache.log`
+7. Logs are written out to `/tmp/precache.log`
 
 ## Suggested Use
 In some environments, it may be desirable to run this as a LaunchDaemon on a Caching server in order to keep particular assets available. To do this, you could use a basic LaunchDaemon that runs once a day.
