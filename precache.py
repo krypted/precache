@@ -35,6 +35,14 @@ from time import sleep
 from urlparse import urlparse
 
 
+# Version
+version = '1.1.0'
+
+
+def print_version():
+    print('precache.py version %s' % (version))
+
+
 class PreCache(object):
     '''
     Contains a number of default settings and other such configuration
@@ -60,7 +68,7 @@ class PreCache(object):
     parsing the software updates feed, this adds additional time to processing.
     '''
     def __init__(self, cache_server=None, cache_beta=False, dry_run=True,
-                 log_level='info'):
+                 log_level='info', ver=version):
 
         # Handle logging
         self.log = logging.getLogger('precache')
@@ -89,7 +97,7 @@ class PreCache(object):
 
         # Set up the rest of the variables and what not
         self.dry_run = dry_run
-        self.version = '1.1.0'
+        self.version = ver
         self.cache_config_path = '/Library/Server/Caching/Config/Config.plist'  # NOQA
         self.mesu_url = 'http://mesu.apple.com/assets'
         self.mobile_asset_path = 'com_apple_MobileAsset_SoftwareUpdate'
@@ -196,10 +204,6 @@ class PreCache(object):
         if KeyboardInterrupt or SystemExit:
             print('')
             sys.exit(1)
-
-    # Version
-    def version(self):
-        print('precache.py version %s' % (self.version))
 
     # Find where the cache server is
     def find_cache_server(self):
@@ -509,6 +513,7 @@ class PreCache(object):
     # Build the asset master list:
     def build_asset_master_list(self):
         try:
+            print('precache version %s' % (self.version))
             print('Caching Server: %s' % (self.cache_server))
             print('Processing feeds. This may take a few moments.')
             [self.process_ios_feed(self.ios_update_feeds[feed])
@@ -963,55 +968,68 @@ def main():
                         help='Path to save IPSW files to.',
                         required=False)
 
+    parser.add_argument('--version',
+                        action='store_true',
+                        dest='ver',
+                        help='Version info.',
+                        required=False)
+
     args = parser.parse_args()
 
     # While argsparse is pretty cool, it does have limits when it comes to
     # handling having items mutually exclusive against a specifc argument so
     # here this explicitly checks if args.list_models is being called and if so
     # tests if it's being passed or not.
-    if args.list_models and (args.model or args.ipsw_model or
-                             args.cache_group or args.cache_ipsw_group):
-        print('Cannot combine these arguments with -l,--list.')
-        sys.exit(1)
-    else:
-        if args.debug:
-            level = 'debug'
-        else:
-            level = 'info'
+    if len(sys.argv) > 1:
+        if args.ver:
+            print_version()
+            sys.exit(0)
 
-        if args.dry_run:
-            dry = True
+        if args.list_models and (args.model or args.ipsw_model or args.ver or
+                                 args.cache_group or args.cache_ipsw_group):
+            print('Cannot combine these arguments with -l,--list.')
+            sys.exit(1)
         else:
-            dry = False
-
-        if args.output_dir:
-            download_dir = args.output_dir[0]
-        else:
-            download_dir = None
-
-        if args.cache_server:
-            cache_srv = args.cache_server[0]
-            p = PreCache(cache_server=cache_srv, log_level=level, dry_run=dry)
-        else:
-            p = PreCache(cache_server=None, log_level=level, dry_run=dry)
-
-        if args.list_models:
-            if args.filter_group:
-                p.list_assets(group=args.filter_group)
+            if args.debug:
+                level = 'debug'
             else:
-                p.list_assets()
+                level = 'info'
 
-        if args.model:
-            p.cache_assets(model=args.model)
+            if args.dry_run:
+                dry = True
+            else:
+                dry = False
 
-        if args.cache_group:
-            p.cache_assets(group=args.cache_group)
+            if args.output_dir:
+                download_dir = args.output_dir[0]
+            else:
+                download_dir = None
 
-        if args.cache_ipsw_group:
-            p.cache_ipsw(group=args.cache_ipsw_group, store_in=download_dir)
+            if args.cache_server:
+                cache_srv = args.cache_server[0]
+                p = PreCache(cache_server=cache_srv, log_level=level, dry_run=dry)
+            else:
+                p = PreCache(cache_server=None, log_level=level, dry_run=dry)
 
-        if args.ipsw_model:
-            p.cache_ipsw(model=args.ipsw_model, store_in=download_dir)
+            if args.list_models:
+                if args.filter_group:
+                    p.list_assets(group=args.filter_group)
+                else:
+                    p.list_assets()
+
+            if args.model:
+                p.cache_assets(model=args.model)
+
+            if args.cache_group:
+                p.cache_assets(group=args.cache_group)
+
+            if args.cache_ipsw_group:
+                p.cache_ipsw(group=args.cache_ipsw_group, store_in=download_dir)
+
+            if args.ipsw_model:
+                p.cache_ipsw(model=args.ipsw_model, store_in=download_dir)
+    else:
+        print('%s --help for usage' % sys.argv[0])
 
 
 if __name__ == '__main__':
