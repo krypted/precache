@@ -1007,7 +1007,8 @@ def main():
 
             if args.cache_server:
                 cache_srv = args.cache_server[0]
-                p = PreCache(cache_server=cache_srv, log_level=level, dry_run=dry)
+                p = PreCache(cache_server=cache_srv,
+                             log_level=level, dry_run=dry)
             else:
                 p = PreCache(cache_server=None, log_level=level, dry_run=dry)
 
@@ -1024,7 +1025,8 @@ def main():
                 p.cache_assets(group=args.cache_group)
 
             if args.cache_ipsw_group:
-                p.cache_ipsw(group=args.cache_ipsw_group, store_in=download_dir)
+                p.cache_ipsw(group=args.cache_ipsw_group,
+                             store_in=download_dir)
 
             if args.ipsw_model:
                 p.cache_ipsw(model=args.ipsw_model, store_in=download_dir)
