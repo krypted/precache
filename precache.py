@@ -113,61 +113,6 @@ class PreCache(object):
         self.mas_assets = {
             # macOS Installers
             'ElCapitan': {'version': '10.11.6',
-<<<<<<< HEAD
-                          'url': ['http://osxapps.itunes.apple.com/',
-                                  'apple-assets-us-std-000001/',
-                                  'Purple20/v4/dc/94/05/',
-                                  'dc940501-f06f-2a91-555e-3dc272653af5/',
-                                  'izt4803713449411067066.pkg']},
-            'Sierra': {'version': '10.12.1',
-                       'url': ['http://osxapps.itunes.apple.com/',
-                               'apple-assets-us-std-000001/',
-                               'Purple71/v4/e2/89/27/',
-                               'e28927af-4924-689a-6296-212477d48c93/',
-                               'gwx5301476560608049407.pkg']},
-            'GarageBand': {'version': '10.1.3',
-                           'url': ['http://osxapps.itunes.apple.com/',
-                                   'apple-assets-us-std-000001/',
-                                   'Purple71/v4/cd/d6/97/',
-                                   'cdd697e2-3e01-4119-433b-ca960a1913ee/',
-                                   'kdp6456182442346746725.pkg']},
-            'iMovie': {'version': '10.1.3',
-                       'url': ['http://osxapps.itunes.apple.com/',
-                               'apple-assets-us-std-000001/',
-                               'Purple71/v4/d1/55/d0/',
-                               'd155d058-d9d3-3633-f4e4-694f564cb4d4/',
-                               'rzx3621285803187092744.pkg']},
-            'Keynote': {'version': '7.0.5',
-                        'url': ['http://osxapps.itunes.apple.com/',
-                                'apple-assets-us-std-000001/',
-                                'Purple62/v4/6e/1a/8f/',
-                                '6e1a8f66-6b54-6326-c0db-36103b5c348c/',
-                                'icz1265015878622586274.pkg']},
-            'Numbers': {'version': '4.0.5',
-                        'url': ['http://osxapps.itunes.apple.com/',
-                                'apple-assets-us-std-000001/',
-                                'Purple71/v4/f9/46/5f/',
-                                'f9465f7a-5d17-cb94-37a3-b83e15beeb13/',
-                                'ton4631605555854163753.pkg']},
-            'Pages': {'version': '6.0.5',
-                      'url': ['http://osxapps.itunes.apple.com/',
-                              'apple-assets-us-std-000001/',
-                              'Purple62/v4/4d/03/c2/',
-                              '4d03c20f-f928-0390-52e4-caaaa96cc84a/',
-                              'ftc6537675000535541069.pkg']},
-            'Xcode': {'version': '8.1',
-                      'url': ['http://osxapps.itunes.apple.com/',
-                              'apple-assets-us-std-000001/',
-                              'Purple71/v4/66/1c/25/',
-                              '661c254e-acc7-de5a-b30b-13364e348b77/',
-                              'jag2639320146412366344.pkg']},
-            'macOSServer': {'version': '5.2',
-                            'url': ['http://osxapps.itunes.apple.com/',
-                                    'apple-assets-us-std-000001/',
-                                    'Purple62/v4/44/71/01/',
-                                    '44710118-b2c9-1e31-73f6-fa7a0a26e594/',
-                                    'wjs7031774084062486733.pkg']}
-=======
                           'url': '%s/apple-assets-us-std-000001/Purple20/v4/dc/94/05/dc940501-f06f-2a91-555e-3dc272653af5/izt4803713449411067066.pkg' % (self.mas_base_url),  # NOQA
                           'type': 'installer'},
             'Sierra': {'version': '10.12.1',
@@ -195,7 +140,6 @@ class PreCache(object):
             'Server': {'version': '6.0.5',
                        'url': '%s/apple-assets-us-std-000001/Purple62/v4/44/71/01/44710118-b2c9-1e31-73f6-fa7a0a26e594/wjs7031774084062486733.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'app'},
->>>>>>> test
         }
 
         # User agent strings
@@ -252,6 +196,10 @@ class PreCache(object):
         if KeyboardInterrupt or SystemExit:
             print('')
             sys.exit(1)
+
+    # Version
+    def version(self):
+        print('precache.py version %s' % (self.version))
 
     # Find where the cache server is
     def find_cache_server(self):
