@@ -87,9 +87,7 @@ class PreCache(object):
         )
         self.log.addHandler(self.rh)
         self.fh = logging.FileHandler(log_path)
-        self.formatter = logging.Formatter(
-            '%(asctime)s %(levelname)s - %(funcName)s() %(message)s'
-        )
+        self.formatter = logging.Formatter("%(asctime)s - %(funcName)s() - %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S")  # NOQA
         self.fh.setFormatter(self.formatter)
         self.log.addHandler(self.fh)
 
