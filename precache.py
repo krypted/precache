@@ -143,6 +143,9 @@ class PreCache(object):
             'GarageBand': {'version': '10.1.3',
                            'url': '%s/apple-assets-us-std-000001/Purple71/v4/cd/d6/97/cdd697e2-3e01-4119-433b-ca960a1913ee/kdp6456182442346746725.pkg' % (self.mas_base_url),  # NOQA
                            'type': 'app'},
+            'FinalCutPro': {'version': '10.3',
+                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/a2/2a/92/a22a92c5-a4ef-1975-4f44-18c91d72b1ea/vfi2534359314319977847.pkg' % (self.mas_base_url),  # NOQA
+                       'type': 'app'},
             'Server': {'version': '6.0.5',
                        'url': '%s/apple-assets-us-std-000001/Purple62/v4/44/71/01/44710118-b2c9-1e31-73f6-fa7a0a26e594/wjs7031774084062486733.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'app'},
