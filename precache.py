@@ -124,6 +124,9 @@ class PreCache(object):
             'Sierra': {'version': '10.12.1',
                        'url': '%s/apple-assets-us-std-000001/Purple71/v4/e2/89/27/e28927af-4924-689a-6296-212477d48c93/gwx5301476560608049407.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'installer'},
+            'Sierra-16B2659': {'version': '10.12.1',
+                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/b2/fa/7c/b2fa7c77-d98d-c8b9-d0d9-2117d54bbd9c/rva2007280253007216763.pkg' % (self.mas_base_url),  # NOQA
+                       'type': 'installer'},
             # Mac App Store Apps
             'Pages': {'version': '6.0.5',
                       'url': '%s/apple-assets-us-std-000001/Purple62/v4/4d/03/c2/4d03c20f-f928-0390-52e4-caaaa96cc84a/ftc6537675000535541069.pkg' % (self.mas_base_url),  # NOQA
@@ -137,8 +140,8 @@ class PreCache(object):
             'Xcode': {'version': '8.1',
                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/66/1c/25/661c254e-acc7-de5a-b30b-13364e348b77/jag2639320146412366344.pkg' % (self.mas_base_url),  # NOQA
                       'type': 'app'},
-            'iMovie': {'version': '10.1.3',
-                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/d1/55/d0/d155d058-d9d3-3633-f4e4-694f564cb4d4/rzx3621285803187092744.pkg' % (self.mas_base_url),  # NOQA
+            'iMovie': {'version': '10.1.4',
+                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/3b/ff/82/3bff82f9-776e-1755-b48a-20337baff813/ose2239999586440224063.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'app'},
             'GarageBand': {'version': '10.1.3',
                            'url': '%s/apple-assets-us-std-000001/Purple71/v4/cd/d6/97/cdd697e2-3e01-4119-433b-ca960a1913ee/kdp6456182442346746725.pkg' % (self.mas_base_url),  # NOQA
@@ -146,7 +149,7 @@ class PreCache(object):
             'FinalCutPro': {'version': '10.3',
                        'url': '%s/apple-assets-us-std-000001/Purple71/v4/a2/2a/92/a22a92c5-a4ef-1975-4f44-18c91d72b1ea/vfi2534359314319977847.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'app'},
-            'Server': {'version': '6.0.5',
+            'Server': {'version': '5.2',
                        'url': '%s/apple-assets-us-std-000001/Purple62/v4/44/71/01/44710118-b2c9-1e31-73f6-fa7a0a26e594/wjs7031774084062486733.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'app'},
         }
