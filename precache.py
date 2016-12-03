@@ -214,7 +214,7 @@ class PreCache(object):
         fallback_srv = 'http://localhost:49672'
         try:
             cmd = '/usr/bin/AssetCacheLocatorUtil'
-            self.log.info('Trying %s' % (cmd))
+            # self.log.info('Trying %s' % (cmd))
             subprocess.Popen([cmd],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except:
