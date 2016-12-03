@@ -23,6 +23,7 @@ A progress indicator provides feedback on how much of the download is left.
 * iMovie
 * macOS Server
 * Xcode
+* Final Cut Pro
 
 ## Usage
 1. `git clone https://github.com/krypted/precache`
