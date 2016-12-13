@@ -121,11 +121,8 @@ class PreCache(object):
             'ElCapitan': {'version': '10.11.6',
                           'url': '%s/apple-assets-us-std-000001/Purple20/v4/dc/94/05/dc940501-f06f-2a91-555e-3dc272653af5/izt4803713449411067066.pkg' % (self.mas_base_url),  # NOQA
                           'type': 'installer'},
-            'Sierra': {'version': '10.12.1',
-                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/e2/89/27/e28927af-4924-689a-6296-212477d48c93/gwx5301476560608049407.pkg' % (self.mas_base_url),  # NOQA
-                       'type': 'installer'},
-            'Sierra-16B2659': {'version': '10.12.1',
-                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/b2/fa/7c/b2fa7c77-d98d-c8b9-d0d9-2117d54bbd9c/rva2007280253007216763.pkg' % (self.mas_base_url),  # NOQA
+            'Sierra': {'version': '10.12.2',
+                       'url': '%s/apple-assets-us-std-000001/Purple122/v4/9f/5d/db/9f5ddb80-20b0-fef9-fa7f-8e59e4724360/uen6942936571579708798.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'installer'},
             # Mac App Store Apps
             'Pages': {'version': '6.0.5',

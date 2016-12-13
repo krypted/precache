@@ -7,7 +7,7 @@ A progress indicator provides feedback on how much of the download is left.
 
 **Current macOS Installers (public releases)**
 * El Capitan 10.11.6
-* Sierra 10.12.1
+* Sierra 10.12.2
 
 **Note** macOS Installers from the Mac App Store are _not_ scraped from an XML feed, instead they have to be updated each time a new release or dot release comes out.
 
