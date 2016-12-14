@@ -134,8 +134,8 @@ class PreCache(object):
             'Keynote': {'version': '7.0.5',
                         'url': '%s/apple-assets-us-std-000001/Purple62/v4/6e/1a/8f/6e1a8f66-6b54-6326-c0db-36103b5c348c/icz1265015878622586274.pkg' % (self.mas_base_url),  # NOQA
                         'type': 'app'},
-            'Xcode': {'version': '8.1',
-                      'url': '%s/apple-assets-us-std-000001/Purple71/v4/66/1c/25/661c254e-acc7-de5a-b30b-13364e348b77/jag2639320146412366344.pkg' % (self.mas_base_url),  # NOQA
+            'Xcode': {'version': '8.2',
+                      'url': '%s/apple-assets-us-std-000001/Purple71/v4/ae/d4/53/aed45309-3a4d-9aae-db37-228eefdf19cd/jwv5437479270530563953.pkg' % (self.mas_base_url),  # NOQA
                       'type': 'app'},
             'iMovie': {'version': '10.1.4',
                        'url': '%s/apple-assets-us-std-000001/Purple71/v4/3b/ff/82/3bff82f9-776e-1755-b48a-20337baff813/ose2239999586440224063.pkg' % (self.mas_base_url),  # NOQA
