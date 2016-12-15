@@ -140,8 +140,8 @@ class PreCache(object):
             'iMovie': {'version': '10.1.4',
                        'url': '%s/apple-assets-us-std-000001/Purple71/v4/3b/ff/82/3bff82f9-776e-1755-b48a-20337baff813/ose2239999586440224063.pkg' % (self.mas_base_url),  # NOQA
                        'type': 'app'},
-            'GarageBand': {'version': '10.1.3',
-                           'url': '%s/apple-assets-us-std-000001/Purple71/v4/cd/d6/97/cdd697e2-3e01-4119-433b-ca960a1913ee/kdp6456182442346746725.pkg' % (self.mas_base_url),  # NOQA
+            'GarageBand': {'version': '10.1.4',
+                           'url': '%s/apple-assets-us-std-000001/Purple111/v4/35/55/ff/3555ff9b-3210-f98a-4193-cae07676a621/nrh2697514682246985131.pkg' % (self.mas_base_url),  # NOQA
                            'type': 'app'},
             'FinalCutPro': {'version': '10.3',
                        'url': '%s/apple-assets-us-std-000001/Purple71/v4/a2/2a/92/a22a92c5-a4ef-1975-4f44-18c91d72b1ea/vfi2534359314319977847.pkg' % (self.mas_base_url),  # NOQA
