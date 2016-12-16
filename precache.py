@@ -116,7 +116,8 @@ class PreCache(object):
 
         self.mas_base_url = 'http://osxapps.itunes.apple.com'
 
-        self.mas_plist = urllib2.urlopen('https://raw.githubusercontent.com/krypted/precache/master/com.github.krypted.precache.apps-list.plist')
+        # Remote plist feed of MAS apps that can be cached
+        self.mas_plist = urllib2.urlopen('https://raw.githubusercontent.com/krypted/precache/master/com.github.krypted.precache.apps-list.plist')  # NOQA
         self.mas_plist = self.mas_plist.read()
 
         self.mas_assets = plistlib.readPlistFromString(self.mas_plist)
