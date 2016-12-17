@@ -390,11 +390,8 @@ class PreCache(object):
                     return True
 
         cacheable_updates = {
-            'iTunesX': '12.5.0',
             'macOSUpd': '10.12.0',
             'OSXUpd': '10.11.6',
-            'Safari': '10.0.0',
-            'SecUpd': '10.12.0'
         }
         xml_req = self.url_request(self.osx_catalog_xml)
         updates = plistlib.readPlistFromString(xml_req.read())
@@ -546,7 +543,7 @@ class PreCache(object):
 
             if group:
                 for g in group:
-                    [print(item.model)
+                    [print('%s' % (item.model))
                      for item in assets_list
                      if g in item.group]
             else:
