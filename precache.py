@@ -36,7 +36,7 @@ from urlparse import urlparse
 
 
 # Version
-version = '1.1.1'
+version = '1.1.2'
 
 
 def print_version():
