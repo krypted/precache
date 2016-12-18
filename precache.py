@@ -36,7 +36,7 @@ from urlparse import urlparse
 
 
 # Version
-version = '1.1.1'
+version = '1.1.2'
 
 
 def print_version():
@@ -116,40 +116,11 @@ class PreCache(object):
 
         self.mas_base_url = 'http://osxapps.itunes.apple.com'
 
-        self.mas_assets = {
-            # macOS Installers
-            'ElCapitan': {'version': '10.11.6',
-                          'url': '%s/apple-assets-us-std-000001/Purple20/v4/dc/94/05/dc940501-f06f-2a91-555e-3dc272653af5/izt4803713449411067066.pkg' % (self.mas_base_url),  # NOQA
-                          'type': 'installer'},
-            'Sierra': {'version': '10.12.2',
-                       'url': '%s/apple-assets-us-std-000001/Purple122/v4/9f/5d/db/9f5ddb80-20b0-fef9-fa7f-8e59e4724360/uen6942936571579708798.pkg' % (self.mas_base_url),  # NOQA
-                       'type': 'installer'},
-            # Mac App Store Apps
-            'Pages': {'version': '6.0.5',
-                      'url': '%s/apple-assets-us-std-000001/Purple62/v4/4d/03/c2/4d03c20f-f928-0390-52e4-caaaa96cc84a/ftc6537675000535541069.pkg' % (self.mas_base_url),  # NOQA
-                      'type': 'app'},
-            'Numbers': {'version': '4.0.5',
-                        'url': '%s/apple-assets-us-std-000001/Purple71/v4/f9/46/5f/f9465f7a-5d17-cb94-37a3-b83e15beeb13/ton4631605555854163753.pkg' % (self.mas_base_url),  # NOQA
-                        'type': 'app'},
-            'Keynote': {'version': '7.0.5',
-                        'url': '%s/apple-assets-us-std-000001/Purple62/v4/6e/1a/8f/6e1a8f66-6b54-6326-c0db-36103b5c348c/icz1265015878622586274.pkg' % (self.mas_base_url),  # NOQA
-                        'type': 'app'},
-            'Xcode': {'version': '8.2',
-                      'url': '%s/apple-assets-us-std-000001/Purple71/v4/ae/d4/53/aed45309-3a4d-9aae-db37-228eefdf19cd/jwv5437479270530563953.pkg' % (self.mas_base_url),  # NOQA
-                      'type': 'app'},
-            'iMovie': {'version': '10.1.4',
-                       'url': '%s/apple-assets-us-std-000001/Purple71/v4/3b/ff/82/3bff82f9-776e-1755-b48a-20337baff813/ose2239999586440224063.pkg' % (self.mas_base_url),  # NOQA
-                       'type': 'app'},
-            'GarageBand': {'version': '10.1.4',
-                           'url': '%s/apple-assets-us-std-000001/Purple111/v4/35/55/ff/3555ff9b-3210-f98a-4193-cae07676a621/nrh2697514682246985131.pkg' % (self.mas_base_url),  # NOQA
-                           'type': 'app'},
-            'FinalCutPro': {'version': '10.3.1',
-                       'url': '%s/apple-assets-us-std-000001/Purple19/v4/ed/cb/db/edcbdb70-7881-a5e7-1a18-558fb96df8a9/bqa1145527233661137693.pkg' % (self.mas_base_url),  # NOQA
-                       'type': 'app'},
-            'Server': {'version': '5.2',
-                       'url': '%s/apple-assets-us-std-000001/Purple62/v4/44/71/01/44710118-b2c9-1e31-73f6-fa7a0a26e594/wjs7031774084062486733.pkg' % (self.mas_base_url),  # NOQA
-                       'type': 'app'},
-        }
+        # Remote plist feed of MAS apps that can be cached
+        self.mas_plist = urllib2.urlopen('https://raw.githubusercontent.com/krypted/precache/master/com.github.krypted.precache.apps-list.plist')  # NOQA
+        self.mas_plist = self.mas_plist.read()
+
+        self.mas_assets = plistlib.readPlistFromString(self.mas_plist)
 
         # User agent strings
         self.user_agents = {
@@ -419,11 +390,8 @@ class PreCache(object):
                     return True
 
         cacheable_updates = {
-            'iTunesX': '12.5.0',
             'macOSUpd': '10.12.0',
             'OSXUpd': '10.11.6',
-            'Safari': '10.0.0',
-            'SecUpd': '10.12.0'
         }
         xml_req = self.url_request(self.osx_catalog_xml)
         updates = plistlib.readPlistFromString(xml_req.read())
@@ -575,7 +543,7 @@ class PreCache(object):
 
             if group:
                 for g in group:
-                    [print(item.model)
+                    [print('%s' % (item.model))
                      for item in assets_list
                      if g in item.group]
             else:
