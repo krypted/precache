@@ -16,18 +16,27 @@
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple19/v4/ed/cb/db/edcbdb70-7881-a5e7-1a18-558fb96df8a9/bqa1145527233661137693.pkg</string>
+        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/b8/1d/14/b81d1495-db01-e276-7d0d-29037e77c176/hyu5195333675358725062.pkg</string>
 		<key>version</key>
-		<string>10.3.1</string>
+		<string>10.3.2</string>
 	</dict>
 	<key>GarageBand</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple111/v4/35/55/ff/3555ff9b-3210-f98a-4193-cae07676a621/nrh2697514682246985131.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/a2/71/af/a271afe8-8290-950c-71ba-8269e2e61dcd/ufj8165153607325069601.pkg</string>
 		<key>version</key>
-		<string>10.1.4</string>
+		<string>10.1.6</string>
+	</dict>
+	<key>LogicProX</key>
+	<dict>
+		<key>type</key>
+		<string>app</string>
+		<key>url</key>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple111/v4/7e/cb/3d/7ecb3dd8-0e15-7ab3-76d2-3133d6f194b7/mss8491519819973083018.pkg</string>
+		<key>version</key>
+		<string>10.3.1</string>
 	</dict>
 	<key>Keynote</key>
 	<dict>
