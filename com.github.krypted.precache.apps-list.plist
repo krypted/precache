@@ -88,9 +88,9 @@
 		<key>type</key>
 		<string>installer</string>
 		<key>url</key>
-        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/53/10/c1/5310c185-0c39-16c2-b202-060f4e539483/xfe2084469457490942658.pkg</string>
+        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple111/v4/8e/39/4b/8e394b51-fbd5-ac4e-5a32-8fb46fcb4df5/yqh6139099876523829387.pkg</string>
 		<key>version</key>
-		<string>10.12.3</string>
+		<string>10.12.4</string>
 	</dict>
 	<key>Xcode</key>
 	<dict>
