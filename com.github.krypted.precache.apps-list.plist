@@ -38,32 +38,41 @@
 		<key>version</key>
 		<string>10.3.1</string>
 	</dict>
+	<key>MainStage</key>
+	<dict>
+		<key>type</key>
+		<string>app</string>
+		<key>url</key>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/93/35/6e/93356ec5-faa0-b2de-9a14-2c68f96dd746/fpn3972236659411213368.pkg</string>
+		<key>version</key>
+		<string>3.3</string>
+	</dict>
 	<key>Keynote</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple62/v4/6e/1a/8f/6e1a8f66-6b54-6326-c0db-36103b5c348c/icz1265015878622586274.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/b4/b1/49/b4b149dd-f4ff-036a-36b0-387eaff2e72f/hyz2787733770816633122.pkg</string>
 		<key>version</key>
-		<string>7.0.5</string>
+		<string>7.1</string>
 	</dict>
 	<key>Numbers</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple71/v4/f9/46/5f/f9465f7a-5d17-cb94-37a3-b83e15beeb13/ton4631605555854163753.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple111/v4/2c/c1/0e/2cc10e6d-f8fe-5e8b-410c-fe684eebe285/wfb8181874853292764343.pkg</string>
 		<key>version</key>
-		<string>4.0.5</string>
+		<string>4.1</string>
 	</dict>
 	<key>Pages</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple62/v4/4d/03/c2/4d03c20f-f928-0390-52e4-caaaa96cc84a/ftc6537675000535541069.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/c9/3b/aa/c93baa51-1b2d-5df7-e184-3987af3ab281/gzm6559372443298506362.pkg</string>
 		<key>version</key>
-		<string>6.0.5</string>
+		<string>6.1</string>
 	</dict>
 	<key>Server</key>
 	<dict>
