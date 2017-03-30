@@ -5,6 +5,9 @@ Assets such as iOS/tvOS/watchOS/Mac App Store apps/OS X Installers/Combo Updates
 If an asset is not currently in cache, it is downloaded; if the asset is in the cache, then the asset is skipped.
 A progress indicator provides feedback on how much of the download is left.
 
+## Requirements
+Requires Python 2.7.10 or newer.
+
 **Current macOS Installers (public releases)**
 * El Capitan 10.11.6
 * Sierra 10.12.2
