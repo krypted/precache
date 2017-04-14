@@ -16,9 +16,9 @@
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/b8/1d/14/b81d1495-db01-e276-7d0d-29037e77c176/hyu5195333675358725062.pkg</string>
+        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple117/v4/19/be/de/19bedeaa-93d4-4b92-420c-a12fe31095cc/vqp3299314615132785244.pkg</string>
 		<key>version</key>
-		<string>10.3.2</string>
+		<string>10.3.3</string>
 	</dict>
 	<key>GarageBand</key>
 	<dict>
@@ -106,9 +106,9 @@
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple71/v4/3b/ff/82/3bff82f9-776e-1755-b48a-20337baff813/ose2239999586440224063.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple82/v4/41/d2/92/41d29258-0c47-f504-f911-d4cf51854595/jya7030649050114949335.pkg</string>
 		<key>version</key>
-		<string>10.1.4</string>
+		<string>10.1.5</string>
 	</dict>
 </dict>
 </plist>
