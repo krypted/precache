@@ -27,6 +27,7 @@ import socket
 import subprocess
 import sys
 import urllib2
+import base64
 
 from operator import attrgetter
 from itertools import groupby
@@ -929,6 +930,24 @@ def main():
                         help='Provide model(s)/app(s), i.e iPhone8,2 Xcode.',
                         required=False)
 
+    parser.add_argument('--jamfserver',
+                        type=str,
+                        dest='jamfserver',
+                        help='Jamf server address',
+                        required=False)
+
+    parser.add_argument('--jamfuser',
+                        type=str,
+                        dest='jamfuser',
+                        help='Jamf server username',
+                        required=False)
+
+    parser.add_argument('--jamfpassword',
+                        type=str,
+                        dest='jamfpassword',
+                        help='Jamf server password',
+                        required=False)
+
     parser.add_argument('-o', '--output',
                         type=str,
                         nargs=1,
@@ -955,7 +974,8 @@ def main():
             sys.exit(0)
 
         if args.list_models and (args.model or args.ipsw_model or args.ver or
-                                 args.cache_group or args.cache_ipsw_group):
+                                 args.cache_group or args.cache_ipsw_group or
+                                 (args.jamfserver and args.jamfuser and args.jamfpassword)):
             print('Cannot combine these arguments with -l,--list.')
             sys.exit(1)
         else:
@@ -986,6 +1006,23 @@ def main():
                     p.list_assets(group=args.filter_group)
                 else:
                     p.list_assets()
+
+            if args.jamfserver and args.jamfuser and args.jamfpassword:
+                jamf_request = urllib2.Request(
+                    "https://{}.jamfcloud.com/JSSResource/mobiledevices".format(args.jamfserver))
+                jamf_request.add_header("Authorization", "Basic {}".format(
+                    base64.b64encode('{}:{}'.format(args.jamfuser, args.jamfpassword))))
+                try:
+                    jamf_response = urllib2.urlopen(jamf_request)
+                except (urllib2.URLError, urllib2.HTTPError) as e:
+                    print('Can not load models from jamf: {}'.format(e))
+                    sys.exit(1)
+                else:
+                    models = re.findall(r'<model_identifier>(.*?)</model_identifier>', jamf_response.read())
+                    if models:
+                        p.cache_assets(model=models)
+                    else:
+                        print('Empty models list from jamf')
 
             if args.model:
                 p.cache_assets(model=args.model)

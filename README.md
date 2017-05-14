@@ -63,6 +63,12 @@ optional arguments:
                         Provide model(s)/app(s), i.e iPhone8,2 Xcode.
   -o, --output file path
                         Path to save IPSW files to.
+  --jamfserver
+                        Indicates a Jamf Pro server or cloud instance URL to pull a list of unique models from. e.g. --jamfserver=myjss
+  --jamfuser
+                        Provide a username to access your server or cloud instance. e.g. --jamfuser=admin
+  --jamfpassword
+                        Provide the password for the user of the Jamf Pro server or cloud instance. e.g. --jamfpassword=mypassword
 ```
 
 ### Sample output
