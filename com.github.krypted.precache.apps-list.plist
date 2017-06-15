@@ -16,18 +16,18 @@
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple117/v4/19/be/de/19bedeaa-93d4-4b92-420c-a12fe31095cc/vqp3299314615132785244.pkg</string>
+        <string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple117/v4/2e/b9/34/2eb9344b-317d-0367-d9e8-fe9cc45e3ab9/luk7632056848069070249.pkg</string>
 		<key>version</key>
-		<string>10.3.3</string>
+		<string>10.3.4</string>
 	</dict>
 	<key>GarageBand</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/a2/71/af/a271afe8-8290-950c-71ba-8269e2e61dcd/ufj8165153607325069601.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple117/v4/1f/b7/f2/1fb7f20f-b517-54eb-64a6-6c66f54b469e/dkf9213242788828583859.pkg</string>
 		<key>version</key>
-		<string>10.1.6</string>
+		<string>10.2</string>
 	</dict>
 	<key>LogicProX</key>
 	<dict>
@@ -52,27 +52,27 @@
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/b4/b1/49/b4b149dd-f4ff-036a-36b0-387eaff2e72f/hyz2787733770816633122.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple127/v4/4c/06/d1/4c06d1a7-a11f-5007-1559-d110983d2950/uok4207324746392610055.pkg</string>
 		<key>version</key>
-		<string>7.1</string>
+		<string>7.2</string>
 	</dict>
 	<key>Numbers</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple111/v4/2c/c1/0e/2cc10e6d-f8fe-5e8b-410c-fe684eebe285/wfb8181874853292764343.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple117/v4/eb/5b/88/eb5b88e8-583d-48ee-3ba5-20c41738c3b1/utt388316018625994914.pkg</string>
 		<key>version</key>
-		<string>4.1</string>
+		<string>4.2</string>
 	</dict>
 	<key>Pages</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple122/v4/c9/3b/aa/c93baa51-1b2d-5df7-e184-3987af3ab281/gzm6559372443298506362.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple127/v4/c9/77/26/c9772693-6822-d9ef-3d11-2772a7cde73b/wus8330472585258558988.pkg</string>
 		<key>version</key>
-		<string>6.1</string>
+		<string>6.2</string>
 	</dict>
 	<key>Server</key>
 	<dict>
@@ -97,18 +97,18 @@
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple111/v4/cb/2a/56/cb2a566c-9b66-9d74-fd33-85cbce1a60b6/qbx6090949180314477710.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple127/v4/8b/96/1e/8b961e54-037f-e71a-1b87-3a4dba8d34a7/eds8725065355495051464.pkg</string>
 		<key>version</key>
-		<string>8.3.1</string>
+		<string>8.3.3</string>
 	</dict>
 	<key>iMovie</key>
 	<dict>
 		<key>type</key>
 		<string>app</string>
 		<key>url</key>
-		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple82/v4/41/d2/92/41d29258-0c47-f504-f911-d4cf51854595/jya7030649050114949335.pkg</string>
+		<string>http://osxapps.itunes.apple.com/apple-assets-us-std-000001/Purple19/v4/4a/2c/53/4a2c5393-b946-ee89-6066-6dc7ba95ea62/uhp1463823430642787132.pkg</string>
 		<key>version</key>
-		<string>10.1.5</string>
+		<string>10.1.6</string>
 	</dict>
 </dict>
 </plist>
