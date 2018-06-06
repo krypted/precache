@@ -1,7 +1,7 @@
 # precache.py
 
-# precache.py v2.0.1 in beta testing here: https://github.com/carlashley/precache_dev please read README.
-There are some changes coming in v2.0.1 that will require the `requests` module to be installed.
+# Important note 2018-06-06
+For the last couple of years, @carlashley and @krypted have maintained this together. Unfortunately @carlashley is stepping away for personal reasons. The fork on his git repo will be closed on 2018-06-30 permanently.
 
 ## What does it do?
 Assets such as iOS/tvOS/watchOS/Mac App Store apps/OS X Installers/Combo Updates are cached through the detected or provided Caching Server.
